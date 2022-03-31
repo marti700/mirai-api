@@ -2,34 +2,38 @@ package instruction
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"mime/multipart"
 
-	"github.com/marti700/mirai/linearmodels"
+	// "github.com/marti700/mirai/linearmodels"
 	"github.com/marti700/mirai/options"
 	"github.com/marti700/veritas/linearalgebra"
 )
 
-type linearRegInstructions struct {
-	Estimator      options.GDOptions  `json:estimator`
-	Regularization options.RegOptions `json:regularization`
+type estimators struct {
+	GD  []options.GDOptions `json:"GD"`
+	OLS bool                `json:"OLS"`
 }
 
-func ParseInstruction(f multipart.File, data,target linearalgebra.Matrix) {
+type LinearRegInstructions struct {
+	Estimators     estimators         `json:"estimators"`
+	Regularization []options.RegOptions `json:"regularization"`
+}
+
+func ParseInstruction(f multipart.File, data, target linearalgebra.Matrix) {
 	filebytes, _ := ioutil.ReadAll(f)
-	linRegInstructions := linearRegInstructions{}
+	linRegInstructions := LinearRegInstructions{}
 	err := json.Unmarshal(filebytes, &linRegInstructions)
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	lr := linearmodels.LinearRegression{}
+	// lr := linearmodels.LinearRegression{}
 
-	opts := options.LROptions{
-		Estimator: linRegInstructions.Estimator,
-	}
+	// opts := options.LROptions{
+	// 	Estimator: linRegInstructions.Estimator.Ols,
+	// }
 
-	lr.Train(target, data, opts)
+	// lr.Train(target, data, opts)
 }

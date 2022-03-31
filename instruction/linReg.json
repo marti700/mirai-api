@@ -1,8 +1,18 @@
 {
-  "estimator": {
-    "Iteations": 1000,
-    "LearningRate": 0.001,
-    "MinStepSize": 0.00003
+  "estimators": {
+    "GD": [
+      {
+        "Iteations": 1000,
+        "LearningRate": 0.001,
+        "MinStepSize": 0.00003
+      }
+    ],
+    "OLS": true
   },
-  "regularization": {}
+  "regularization": [
+    {
+      "type": "l1",
+      "lambda": "0.01"
+    }
+  ]
 }
