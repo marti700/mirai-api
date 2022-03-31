@@ -1,0 +1,8 @@
+{
+  "estimator": {
+    "Iteations": 1000,
+    "LearningRate": 0.001,
+    "MinStepSize": 0.00003
+  },
+  "regularization": {}
+}

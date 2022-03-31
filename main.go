@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"mime/multipart"
+	"mirai-api/instruction"
 	"net/http"
 	"strconv"
 	"strings"
@@ -59,9 +60,15 @@ func ReadDataFromcsv(f multipart.File) linearalgebra.Matrix {
 
 func HandleUpload(w http.ResponseWriter, r *http.Request){
 	r.ParseMultipartForm(200)
-	fil, handler, _ := r.FormFile("file")
-	defer fil.Close()
-	ReadDataFromcsv(fil)
+	instructions, handler, _ := r.FormFile("json")
+	data, handler, _ := r.FormFile("train")
+	target, handler, _ := r.FormFile("target")
+	defer instructions.Close()
+	defer data.Close()
+	defer target.Close()
+	trainData := ReadDataFromcsv(data)
+	targetData := ReadDataFromcsv(target)
+	instruction.ParseInstruction(instructions, trainData, targetData)
 	fmt.Println(handler.Filename)
 	fmt.Println(handler.Size)
 	fmt.Println("ja")
