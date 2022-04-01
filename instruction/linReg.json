@@ -1,18 +1,38 @@
-{
-  "estimators": {
-    "GD": [
-      {
+[
+  {
+    "name": "first model",
+    "estimators": {
+      "GD": {
         "Iteations": 1000,
         "LearningRate": 0.001,
         "MinStepSize": 0.00003
-      }
-    ],
-    "OLS": true
-  },
-  "regularization": [
-    {
+      },
+      "OLS": true
+    },
+    "regularization": {
       "type": "l1",
-      "lambda": "0.01"
+      "lambda": 0.01
     }
-  ]
-}
+  },
+  {
+    "name": "second model",
+    "estimators": {
+      "GD": {
+        "Iteations": 100,
+        "LearningRate": 0.01,
+        "MinStepSize": 0.002
+      },
+      "OLS": true
+    },
+    "regularization": {
+      "type": "l2",
+      "lambda": 0.01
+    }
+  },
+  {
+    "name": "third model",
+    "estimators": {
+      "OLS": true
+    }
+  }
+]

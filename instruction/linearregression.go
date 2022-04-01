@@ -11,19 +11,20 @@ import (
 	"github.com/marti700/veritas/linearalgebra"
 )
 
-type estimators struct {
-	GD  []options.GDOptions `json:"GD"`
-	OLS bool                `json:"OLS"`
+type Estimators struct {
+	GD  options.GDOptions `json:"GD"`
+	OLS bool              `json:"OLS"`
 }
 
 type LinearRegInstructions struct {
-	Estimators     estimators         `json:"estimators"`
-	Regularization []options.RegOptions `json:"regularization"`
+	Name           string             `json:"name"`
+	Estimators     Estimators         `json:"estimators"`
+	Regularization options.RegOptions `json:"regularization"`
 }
 
 func ParseInstruction(f multipart.File, data, target linearalgebra.Matrix) {
 	filebytes, _ := ioutil.ReadAll(f)
-	linRegInstructions := LinearRegInstructions{}
+	var linRegInstructions []LinearRegInstructions
 	err := json.Unmarshal(filebytes, &linRegInstructions)
 	if err != nil {
 		log.Fatal(err)
