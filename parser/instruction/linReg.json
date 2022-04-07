@@ -22,7 +22,7 @@
         "LearningRate": 0.01,
         "MinStepSize": 0.002
       },
-      "OLS": true
+      "OLS": false
     },
     "regularization": {
       "type": "l2",
