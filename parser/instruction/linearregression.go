@@ -22,7 +22,7 @@ type LinearRegInstructions struct {
 	Regularization options.RegOptions `json:"regularization"`
 }
 
-func ParseInstruction(f multipart.File, data, target linearalgebra.Matrix) {
+func ParseInstruction(f multipart.File, data, target linearalgebra.Matrix) []LinearRegInstructions {
 	filebytes, _ := ioutil.ReadAll(f)
 	var linRegInstructions []LinearRegInstructions
 	err := json.Unmarshal(filebytes, &linRegInstructions)
@@ -30,6 +30,7 @@ func ParseInstruction(f multipart.File, data, target linearalgebra.Matrix) {
 		log.Fatal(err)
 	}
 
+	return linRegInstructions
 	// lr := linearmodels.LinearRegression{}
 
 	// opts := options.LROptions{
