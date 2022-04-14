@@ -9,9 +9,10 @@ import (
 
 	"github.com/marti700/veritas/linearalgebra"
 )
+
 // Reads data from a csv file and returns the read data as a Matrix
 // this functiona assumes the data in the csv are numbers in the float64 range
-func ReadDataFromcsv(f multipart.File) linearalgebra.Matrix {
+func ReadDataFromCSV(f multipart.File) linearalgebra.Matrix {
 
 	scanner := bufio.NewScanner(f)
 	var matrixData string
@@ -27,7 +28,7 @@ func ReadDataFromcsv(f multipart.File) linearalgebra.Matrix {
 	fileLines := 0
 	for scanner.Scan() {
 		// extra coma so that the last number of this line don't get mixed with the first number of the next when slitting later
-		matrixData += scanner.Text()+","
+		matrixData += scanner.Text() + ","
 		fileLines++
 	}
 
