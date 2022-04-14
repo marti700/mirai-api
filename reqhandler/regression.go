@@ -1,6 +1,7 @@
 package reqhandler
 
 import (
+	"encoding/json"
 	"fmt"
 	"mirai-api/parser/data"
 	"mirai-api/parser/instruction"
@@ -11,11 +12,19 @@ import (
 	"github.com/marti700/veritas/linearalgebra"
 )
 
+//holds the linear model response
+// The ModelName field will have the same value that its corresponding instrucitions
+// Model will be  the trained linear regression model
+type LrResponse struct {
+	ModelName string
+	Model     linearmodels.LinearRegression
+}
+
 // Handles the requests made to the /regression endpoint
-// this functions parses the training data and the training instructions
-// and responds with a json representation of the trained linear model (TODO)
-// for now data must be in csv format, the features and the target variable mustbe in defferent csv files
-// instructions is a json file that indicates how the data must be trained
+// this functions parses the training data and the training instructions (see the LrResponse struct)
+// and responds with a json representation of the trained linear models
+// for now data must be in csv format, the features and the target variable must be in defferent csv files
+// instructions is a json file that indicates how the model must be trained
 func HandleRegression(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(200)
 
@@ -25,8 +34,25 @@ func HandleRegression(w http.ResponseWriter, r *http.Request) {
 	trainData := data.ReadDataFromCSV(dataFile)
 	targetData := data.ReadDataFromCSV(targetFile)
 	trainingInstructions := instruction.ParseInstruction(instructionsFile, trainData, targetData)
-	trainModel(trainingInstructions[1], trainData, targetData)
-	fmt.Println(trainingInstructions)
+	resp, err := json.Marshal(trainModels(trainingInstructions, trainData, targetData))
+	if err != nil {
+		fmt.Println(err)
+	}
+	w.Write(resp)
+}
+
+func trainModels(trainIns []instruction.LinearRegInstructions, data, target linearalgebra.Matrix) []LrResponse {
+	response := make([]LrResponse, len(trainIns))
+
+	for i, ins := range trainIns {
+		model := trainModel(ins, data, target)
+		response[i] = LrResponse{
+			ModelName: ins.Name,
+			Model:     model,
+		}
+
+	}
+	return response
 }
 
 // trains a linear regression model and returns the trained model
@@ -43,7 +69,7 @@ func trainModel(trainIns instruction.LinearRegInstructions, data, target lineara
 		return lr
 	}
 
-	if !emptyGD(trainIns.Estimators.GD) {
+	if !isEmptyGD(trainIns.Estimators.GD) {
 		opts := options.LROptions{
 			Estimator:      trainIns.Estimators.GD,
 			Regularization: trainIns.Regularization,
@@ -54,7 +80,7 @@ func trainModel(trainIns instruction.LinearRegInstructions, data, target lineara
 }
 
 // Returns true if the GD options are not provided as an estimator to de linear regression model. Returns false otherwise
-func emptyGD(gdOpts options.GDOptions) bool {
+func isEmptyGD(gdOpts options.GDOptions) bool {
 	if gdOpts.Iteations == 0 && gdOpts.LearningRate == 0 && gdOpts.MinStepSize == 0 {
 		return true
 	}

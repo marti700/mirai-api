@@ -10,11 +10,18 @@ import (
 	"github.com/marti700/veritas/linearalgebra"
 )
 
+// consists of the suported model estimators of the mirai linear regression model
 type Estimators struct {
 	GD  options.GDOptions `json:"GD"`
 	OLS bool              `json:"OLS"`
 }
 
+
+// represents a linear regression instructions
+// the Name field is the id of the instruction and have the same value as its corresponding model in the service response
+// Estimators are the linear model estimators supported by mirai current options are GD which will train the model using Gradiant Descent
+// and OLS which estimates the model hyperparameters from the linear regression close form solution
+// the regularization parameter specifies if the model should be trained using regularization. Supported values are l1 (lasso) and l2 (ridge)
 type LinearRegInstructions struct {
 	Name           string             `json:"name"`
 	Estimators     Estimators         `json:"estimators"`
