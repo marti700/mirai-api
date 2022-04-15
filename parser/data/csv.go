@@ -2,7 +2,6 @@ package data
 
 import (
 	"bufio"
-	"fmt"
 	"mime/multipart"
 	"strconv"
 	"strings"
@@ -52,6 +51,5 @@ func ReadDataFromCSV(f multipart.File) linearalgebra.Matrix {
 		data[col], _ = strconv.ParseFloat(e, 64)
 		col++
 	}
-	fmt.Println(linearalgebra.NewMatrix(matrix))
 	return linearalgebra.NewMatrix(matrix)
 }

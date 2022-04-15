@@ -7,7 +7,7 @@ import (
 	"mime/multipart"
 
 	"github.com/marti700/mirai/options"
-	"github.com/marti700/veritas/linearalgebra"
+	// "github.com/marti700/veritas/linearalgebra"
 )
 
 // consists of the suported model estimators of the mirai linear regression model
@@ -70,7 +70,7 @@ type LinearRegInstructions struct {
 //     }
 //   }
 // ]
-func ParseInstruction(f multipart.File, data, target linearalgebra.Matrix) []LinearRegInstructions {
+func ParseInstruction(f multipart.File) []LinearRegInstructions {
 	filebytes, _ := ioutil.ReadAll(f)
 	var linRegInstructions []LinearRegInstructions
 	err := json.Unmarshal(filebytes, &linRegInstructions)

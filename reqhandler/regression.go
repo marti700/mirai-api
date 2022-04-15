@@ -33,7 +33,7 @@ func HandleRegression(w http.ResponseWriter, r *http.Request) {
 
 	trainData := data.ReadDataFromCSV(dataFile)
 	targetData := data.ReadDataFromCSV(targetFile)
-	trainingInstructions := instruction.ParseInstruction(instructionsFile, trainData, targetData)
+	trainingInstructions := instruction.ParseInstruction(instructionsFile)
 	resp, err := json.Marshal(trainModels(trainingInstructions, trainData, targetData))
 	if err != nil {
 		fmt.Println(err)
