@@ -4,14 +4,14 @@
     "estimators": {
       "GD": {
         "Iteations": 1000,
-        "LearningRate": 0.001,
+        "LearningRate": 0.01,
         "MinStepSize": 0.00003
       },
-      "OLS": true
+      "OLS": false
     },
     "regularization": {
       "type": "l1",
-      "lambda": 0.01
+      "lambda": 20.0
     }
   },
   {
