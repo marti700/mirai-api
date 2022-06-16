@@ -1,4 +1,4 @@
-github.com/marti700/mirai v0.0.0-20220406121543-07fb44d3d390 h1:RCclByCzoU8xB7sGbxB2zUU6ajmpj/KX7zSQTIsm7SQ=
-github.com/marti700/mirai v0.0.0-20220406121543-07fb44d3d390/go.mod h1:PSaRiVk3z3HWJY0xJicZ4CnqB+nlUNYilA3UnPq1JMo=
-github.com/marti700/veritas v0.0.0-20220316114542-b8896a01b8a4 h1:a9kzJ4EcwBxtyQHbfEZzSPghbC6zBE1H1lUcQkM5jAw=
-github.com/marti700/veritas v0.0.0-20220316114542-b8896a01b8a4/go.mod h1:j8HtjoGpCxS7QCU5+/c+yvJ3G+xfDpY2wrH+Yia58Fo=
+github.com/marti700/mirai v0.0.0-20220613114924-a748ea5a6737 h1:IsyBWVl5opEP6pekdtPGWum5JYXDzm1GQH6Sl40qsds=
+github.com/marti700/mirai v0.0.0-20220613114924-a748ea5a6737/go.mod h1:xvSJ3dWlyoozoXGMZOMVKm4GFwHJCJsQP6a2TA1CLa8=
+github.com/marti700/veritas v0.0.0-20220523105331-1d62dd4e51ca h1:CR/rV2Cmk4PyWPk2IcPcw4GS0N2PfHWNRH1dowTTdzA=
+github.com/marti700/veritas v0.0.0-20220523105331-1d62dd4e51ca/go.mod h1:j8HtjoGpCxS7QCU5+/c+yvJ3G+xfDpY2wrH+Yia58Fo=

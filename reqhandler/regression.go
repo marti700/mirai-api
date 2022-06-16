@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/marti700/mirai/linearmodels"
+	"github.com/marti700/mirai/models/linearmodels"
 	"github.com/marti700/mirai/options"
 	"github.com/marti700/veritas/linearalgebra"
 )
@@ -114,18 +114,19 @@ func trainModelC(trainIns instruction.LinearRegInstructions, data, target linear
 	lr := linearmodels.LinearRegression{}
 
 	if trainIns.Estimators.OLS {
-		opts := options.LROptions{
+		lr.Opts = options.LROptions{
+
 			Estimator:      options.NewOLSOptions(),
 			Regularization: trainIns.Regularization,
 		}
-		lr.Train(target, data, opts)
+		lr.Train(target, data)
 		lrmChan <- newLrResponse(trainIns.Name, lr)
 	} else if !isEmptyGD(trainIns.Estimators.GD) {
-		opts := options.LROptions{
+		lr.Opts = options.LROptions{
 			Estimator:      trainIns.Estimators.GD,
 			Regularization: trainIns.Regularization,
 		}
-		lr.Train(target, data, opts)
+		lr.Train(target, data)
 		lrmChan <- newLrResponse(trainIns.Name, lr)
 	}
 }
