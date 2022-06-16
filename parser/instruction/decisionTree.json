@@ -1,0 +1,24 @@
+[
+  {
+    "name": "model 1",
+    "kind": "classifier",
+    "criterion": "GINI"
+  },
+  {
+    "name": "model 2",
+    "kind": "classifier",
+    "criterion": "ENTROPY"
+  },
+  {
+    "name": "model 3",
+    "kind": "regressor",
+    "criterion": "RSS",
+    "minLeafSamples": 20
+  },
+  {
+    "name": "model 4",
+    "kind": "regressor",
+    "criterion": "MSS",
+    "minLeafSamples": 20
+  }
+]
