@@ -26,8 +26,6 @@ import (
 type DTResponse struct {
 	ModelName string
 	Model     model.Model
-	// classifier *treemodels.DecisionTreeClassifier
-	// regressor   *treemodels.DecisionTreeRegressor
 }
 
 func newDTResponse(id string, mod model.Model) DTResponse {
@@ -110,19 +108,19 @@ func trainDTs(data, target linearalgebra.Matrix,
 
 	for _, m := range models {
 		m.Model.Train(data, target)
-		filePath := "./" + m.ModelName+".dot"
-		dst, _ := os.Create(filePath)
 		switch t := m.Model.(type) {
 		case *treemodels.DecisionTreeClassifier:
+			zwc, _ := zipWriter.Create(m.ModelName + ".dot")
 			t.Model.Plot()
 			f, _ := os.Open("tree.dot")
-			zipWriter.Create(m.ModelName)
-			io.Copy(dst, f)
+			io.Copy(zwc, f)
+			f.Close()
 		case *treemodels.DecisionTreeRegressor:
+			zwr, _ := zipWriter.Create(m.ModelName + ".dot")
 			t.Model.Plot()
 			f, _ := os.Open("tree.dot")
-			zipWriter.Create(m.ModelName)
-			io.Copy(dst, f)
+			io.Copy(zwr, f)
+			f.Close()
 		}
 	}
 }
