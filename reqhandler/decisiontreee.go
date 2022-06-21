@@ -49,11 +49,11 @@ func HandleDecisionTree(w http.ResponseWriter, r *http.Request) {
 	trainData := data.ReadDataFromCSV(dataFile)
 	targetData := data.ReadDataFromCSV(targetFile)
 	trainingInstructions := instruction.ParseInstruction1(instructionsFile)
-	prepareFiles(trainDecisionTree(trainingInstructions, trainData, targetData))
+	filePath:= prepareFiles(trainDecisionTree(trainingInstructions, trainData, targetData))
 
-	f, err := ioutil.ReadFile("models.zip")
+	f, err := ioutil.ReadFile(filePath+"/models.zip")
 	if err != nil {
-		log.Fatal("Error preparing models download")
+		log.Fatal(err)
 	}
 
 	// resp, err := json.Marshal(trainDecisionTree(trainingInstructions, trainData, targetData))
@@ -63,6 +63,11 @@ func HandleDecisionTree(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Write(f)
+
+	err = os.RemoveAll(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func trainDecisionTree(trainingInstructions []instruction.DecisiontreeIntruction,
