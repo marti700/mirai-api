@@ -2,6 +2,7 @@ package reqhandler
 
 import (
 	"archive/zip"
+	"time"
 	// "encoding/json"
 	// "fmt"
 	"io"
@@ -35,6 +36,10 @@ func newDTResponse(id string, mod model.Model) DTResponse {
 	}
 }
 
+// Since a tree can be hard to read as a text instead of a json response
+// a .zip file with the models is returned as application/octet-stream
+// the zip file contains the models as .dot files
+// (https://en.wikipedia.org/wiki/DOT_(graph_description_language))
 func HandleDecisionTree(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(200)
 
@@ -44,7 +49,7 @@ func HandleDecisionTree(w http.ResponseWriter, r *http.Request) {
 	trainData := data.ReadDataFromCSV(dataFile)
 	targetData := data.ReadDataFromCSV(targetFile)
 	trainingInstructions := instruction.ParseInstruction1(instructionsFile)
-	trainDecisionTree(trainingInstructions, trainData, targetData)
+	prepareFiles(trainDecisionTree(trainingInstructions, trainData, targetData))
 
 	f, err := ioutil.ReadFile("models.zip")
 	if err != nil {
@@ -94,20 +99,37 @@ func classifyModels(ins []instruction.DecisiontreeIntruction) []DTResponse {
 	return responses
 }
 
+// trains the models present in a DTResponse
+// and retunrs a new DTResponse array with trained models
 func trainDTs(data, target linearalgebra.Matrix,
-	models []DTResponse) {
+	models []DTResponse) []DTResponse {
 
-	archive, err := os.Create("models.zip")
+		resps := make([]DTResponse, len(models))
+
+	for i, m := range models {
+		m.Model.Train(data, target)
+		resps[i] = m
+	}
+
+	return resps
+}
+
+// given a DTResponse array creates a zip file containing
+// the models as a .dot files
+// returns the location where the zip file is
+func prepareFiles(models []DTResponse) string {
+dirName := time.Now().String()
+	os.Mkdir(dirName, os.ModePerm)
+	archive, err := os.Create(dirName + "/models.zip")
 	if err != nil {
-		log.Fatal("Error creating zip file")
+		log.Fatal(err)
 	}
 	defer archive.Close()
 
 	zipWriter := zip.NewWriter(archive)
 	defer zipWriter.Close()
 
-	for _, m := range models {
-		m.Model.Train(data, target)
+for _, m := range models {
 		switch t := m.Model.(type) {
 		case *treemodels.DecisionTreeClassifier:
 			zwc, _ := zipWriter.Create(m.ModelName + ".dot")
@@ -123,4 +145,5 @@ func trainDTs(data, target linearalgebra.Matrix,
 			f.Close()
 		}
 	}
+	return dirName
 }
