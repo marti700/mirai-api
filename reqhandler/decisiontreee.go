@@ -2,7 +2,9 @@ package reqhandler
 
 import (
 	"archive/zip"
+	"sync"
 	"time"
+
 	// "encoding/json"
 	// "fmt"
 	"io"
@@ -49,9 +51,9 @@ func HandleDecisionTree(w http.ResponseWriter, r *http.Request) {
 	trainData := data.ReadDataFromCSV(dataFile)
 	targetData := data.ReadDataFromCSV(targetFile)
 	trainingInstructions := instruction.ParseInstruction1(instructionsFile)
-	filePath:= prepareFiles(trainDecisionTree(trainingInstructions, trainData, targetData))
+	filePath := prepareFiles(trainDecisionTree(trainingInstructions, trainData, targetData))
 
-	f, err := ioutil.ReadFile(filePath+"/models.zip")
+	f, err := ioutil.ReadFile(filePath + "/models.zip")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,7 +76,17 @@ func trainDecisionTree(trainingInstructions []instruction.DecisiontreeIntruction
 	data, target linearalgebra.Matrix) []DTResponse {
 
 	resp := classifyModels(trainingInstructions)
-	trainDTs(data, target, resp)
+
+	var wg sync.WaitGroup
+
+	for _, m := range resp {
+		wg.Add(1)
+		go func(mod DTResponse) {
+			defer wg.Done()
+			mod.Model.Train(data, target)
+		}(m)
+	}
+	wg.Wait()
 
 	return resp
 }
@@ -104,26 +116,35 @@ func classifyModels(ins []instruction.DecisiontreeIntruction) []DTResponse {
 	return responses
 }
 
+// // trains the models present in a DTResponse
+// // and retunrs a new DTResponse array with trained models
+// func trainDTs(data, target linearalgebra.Matrix,
+// 	models []DTResponse) []DTResponse {
+
+// 	resps := make([]DTResponse, len(models))
+// 	var wg sync.WaitGroup
+
+// 	for i, m := range models {
+// 		wg.Add(1)
+// 		resps[i] = m
+// 		go func(mod DTResponse) {
+// 			defer wg.Done()
+// 			mod.Model.Train(data, target)
+// 		}(m)
+// 	}
+// 	wg.Wait()
+
+// 	return resps
+// }
+
 // trains the models present in a DTResponse
 // and retunrs a new DTResponse array with trained models
-func trainDTs(data, target linearalgebra.Matrix,
-	models []DTResponse) []DTResponse {
-
-		resps := make([]DTResponse, len(models))
-
-	for i, m := range models {
-		m.Model.Train(data, target)
-		resps[i] = m
-	}
-
-	return resps
-}
 
 // given a DTResponse array creates a zip file containing
 // the models as a .dot files
 // returns the location where the zip file is
 func prepareFiles(models []DTResponse) string {
-dirName := time.Now().String()
+	dirName := time.Now().String()
 	os.Mkdir(dirName, os.ModePerm)
 	archive, err := os.Create(dirName + "/models.zip")
 	if err != nil {
@@ -134,7 +155,7 @@ dirName := time.Now().String()
 	zipWriter := zip.NewWriter(archive)
 	defer zipWriter.Close()
 
-for _, m := range models {
+	for _, m := range models {
 		switch t := m.Model.(type) {
 		case *treemodels.DecisionTreeClassifier:
 			zwc, _ := zipWriter.Create(m.ModelName + ".dot")
