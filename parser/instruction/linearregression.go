@@ -7,10 +7,9 @@ import (
 	"mime/multipart"
 
 	"github.com/marti700/mirai/options"
-	// "github.com/marti700/veritas/linearalgebra"
 )
 
-// consists of the suported model estimators of the mirai linear regression model
+// The suported model estimators of the mirai linear regression model
 type Estimators struct {
 	GD  options.GDOptions `json:"GD"`
 	OLS bool              `json:"OLS"`

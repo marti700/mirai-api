@@ -57,7 +57,7 @@ func HandleDecisionTreeRegressor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Write(f)
 
-	err = os.RemoveAll(filePath)
+	err = os.RemoveAll(filePath) // remove temporary files
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -87,6 +87,7 @@ func HandleDecisionTreeClassifier(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Write(f)
 
+	// removes temporary files
 	err = os.RemoveAll(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -94,12 +95,11 @@ func HandleDecisionTreeClassifier(w http.ResponseWriter, r *http.Request) {
 }
 
 // trains the regression models present in a DTResponse
-// and retunrs a new DTResponse array with trained models
+// and retunrs a new DTResponse array with the trained models
 func trainDecisionTreeRegressor(trainingInstructions []instruction.DecisiontreeRegIntruction,
 	data, target linearalgebra.Matrix) []DTResponse {
 
 	responses := make([]DTResponse, 0, len(trainingInstructions))
-	// resp := classifyModels(trainingInstructions)
 
 	//Initialize models
 	for _, m := range trainingInstructions {
@@ -136,7 +136,6 @@ func trainDecisionTreeClassifier(trainingInstructions []instruction.Decisiontree
 	data, target linearalgebra.Matrix) []DTResponse {
 
 	responses := make([]DTResponse, 0, len(trainingInstructions))
-	// resp := classifyModels(trainingInstructions)
 
 	//Initialize models
 	for _, m := range trainingInstructions {
