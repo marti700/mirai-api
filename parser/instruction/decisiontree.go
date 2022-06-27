@@ -7,16 +7,33 @@ import (
 	"mime/multipart"
 )
 
-type DecisiontreeIntruction struct {
+type DecisiontreeRegIntruction struct {
 	Name           string `json:"name"`
 	Kind           string `json:"kind"`
 	Criterion      string `json:"criterion"`
 	MinLeafSamples int    `json:"minLeafSamples"`
 }
 
-func ParseInstruction1(f multipart.File) []DecisiontreeIntruction {
+type DecisiontreeClassIntruction struct {
+	Name      string `json:"name"`
+	Kind      string `json:"kind"`
+	Criterion string `json:"criterion"`
+}
+
+func ParseDTRegInstruction(f multipart.File) []DecisiontreeRegIntruction {
 	filebytes, _ := ioutil.ReadAll(f)
-	var instructions []DecisiontreeIntruction
+	var instructions []DecisiontreeRegIntruction
+	err := json.Unmarshal(filebytes, &instructions)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return instructions
+}
+
+func ParseDTClassInstruction(f multipart.File) []DecisiontreeClassIntruction {
+	filebytes, _ := ioutil.ReadAll(f)
+	var instructions []DecisiontreeClassIntruction
 	err := json.Unmarshal(filebytes, &instructions)
 	if err != nil {
 		log.Fatal(err)

@@ -1,0 +1,12 @@
+[
+  {
+    "name": "model1",
+    "kind": "classifier",
+    "criterion": "GINI"
+  },
+  {
+    "name": "model2",
+    "kind": "classifier",
+    "criterion": "ENTROPY"
+  }
+]

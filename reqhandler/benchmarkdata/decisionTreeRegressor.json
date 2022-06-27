@@ -1,0 +1,14 @@
+[
+  {
+    "name": "model3",
+    "kind": "regressor",
+    "criterion": "RSS",
+    "minLeafSamples": 20
+  },
+  {
+    "name": "model4",
+    "kind": "regressor",
+    "criterion": "MSE",
+    "minLeafSamples": 20
+  }
+]

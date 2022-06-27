@@ -5,19 +5,14 @@ import (
 	"sync"
 	"time"
 
-	// "encoding/json"
-	// "fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 
-	// "log"
 	"mirai-api/parser/data"
 	"mirai-api/parser/instruction"
 	"net/http"
-
-	// "time"
 
 	"github.com/marti700/mirai/metrics"
 	model "github.com/marti700/mirai/models"
@@ -42,7 +37,7 @@ func newDTResponse(id string, mod model.Model) DTResponse {
 // a .zip file with the models is returned as application/octet-stream
 // the zip file contains the models as .dot files
 // (https://en.wikipedia.org/wiki/DOT_(graph_description_language))
-func HandleDecisionTree(w http.ResponseWriter, r *http.Request) {
+func HandleDecisionTreeRegressor(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(200)
 
 	instructionsFile, dataFile, targetFile := RequFiles(r)
@@ -50,18 +45,14 @@ func HandleDecisionTree(w http.ResponseWriter, r *http.Request) {
 
 	trainData := data.ReadDataFromCSV(dataFile)
 	targetData := data.ReadDataFromCSV(targetFile)
-	trainingInstructions := instruction.ParseInstruction1(instructionsFile)
-	filePath := prepareFiles(trainDecisionTree(trainingInstructions, trainData, targetData))
+	trainingInstructions := instruction.ParseDTRegInstruction(instructionsFile)
+	filePath := prepareFiles(trainDecisionTreeRegressor(trainingInstructions, trainData, targetData))
 
 	f, err := ioutil.ReadFile(filePath + "/models.zip")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// resp, err := json.Marshal(trainDecisionTree(trainingInstructions, trainData, targetData))
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Write(f)
@@ -72,14 +63,62 @@ func HandleDecisionTree(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func trainDecisionTree(trainingInstructions []instruction.DecisiontreeIntruction,
+// Since a tree can be hard to read as a text instead of a json response
+// a .zip file with the models is returned as application/octet-stream
+// the zip file contains the models as .dot files
+// (https://en.wikipedia.org/wiki/DOT_(graph_description_language))
+func HandleDecisionTreeClassifier(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(200)
+
+	instructionsFile, dataFile, targetFile := RequFiles(r)
+	defer CloseFiles(instructionsFile, dataFile, targetFile)
+
+	trainData := data.ReadDataFromCSV(dataFile)
+	targetData := data.ReadDataFromCSV(targetFile)
+	trainingInstructions := instruction.ParseDTClassInstruction(instructionsFile)
+	filePath := prepareFiles(trainDecisionTreeClassifier(trainingInstructions, trainData, targetData))
+
+	f, err := ioutil.ReadFile(filePath + "/models.zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Write(f)
+
+	err = os.RemoveAll(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// trains the regression models present in a DTResponse
+// and retunrs a new DTResponse array with trained models
+func trainDecisionTreeRegressor(trainingInstructions []instruction.DecisiontreeRegIntruction,
 	data, target linearalgebra.Matrix) []DTResponse {
 
-	resp := classifyModels(trainingInstructions)
+	responses := make([]DTResponse, 0, len(trainingInstructions))
+	// resp := classifyModels(trainingInstructions)
 
+	//Initialize models
+	for _, m := range trainingInstructions {
+		var reg_opt options.DTreeRegreessorOptions
+		if m.Criterion == "RSS" {
+			reg_opt = options.NewDTRegressorOptions(m.MinLeafSamples, metrics.RSS)
+		} else if m.Criterion == "MSE" {
+			reg_opt = options.NewDTRegressorOptions(m.MinLeafSamples, metrics.MeanSquareError)
+		}
+
+		model := treemodels.NewDecisionTreeRegressor(reg_opt)
+		resp := newDTResponse(m.Name, model)
+		responses = append(responses, resp)
+	}
+
+	// train models concurrently
 	var wg sync.WaitGroup
 
-	for _, m := range resp {
+	for _, m := range responses {
 		wg.Add(1)
 		go func(mod DTResponse) {
 			defer wg.Done()
@@ -88,57 +127,40 @@ func trainDecisionTree(trainingInstructions []instruction.DecisiontreeIntruction
 	}
 	wg.Wait()
 
-	return resp
-}
-
-func classifyModels(ins []instruction.DecisiontreeIntruction) []DTResponse {
-	responses := make([]DTResponse, 0, len(ins))
-
-	for _, m := range ins {
-		if m.Kind == "regressor" {
-			var reg_opt options.DTreeRegreessorOptions
-			if m.Criterion == "RSS" {
-				reg_opt = options.NewDTRegressorOptions(m.MinLeafSamples, metrics.RSS)
-			} else if m.Criterion == "MSS" {
-				reg_opt = options.NewDTRegressorOptions(m.MinLeafSamples, metrics.MeanSquareError)
-			}
-			model := treemodels.NewDecisionTreeRegressor(reg_opt)
-			resp := newDTResponse(m.Name, model)
-			responses = append(responses, resp)
-		} else {
-			c_opt := options.NewDTreeClassifierOption(m.Criterion)
-			model := treemodels.NewDecicionTreeeClassifier(c_opt)
-			resp := newDTResponse(m.Name, model)
-			responses = append(responses, resp)
-		}
-	}
-
 	return responses
 }
 
-// // trains the models present in a DTResponse
-// // and retunrs a new DTResponse array with trained models
-// func trainDTs(data, target linearalgebra.Matrix,
-// 	models []DTResponse) []DTResponse {
-
-// 	resps := make([]DTResponse, len(models))
-// 	var wg sync.WaitGroup
-
-// 	for i, m := range models {
-// 		wg.Add(1)
-// 		resps[i] = m
-// 		go func(mod DTResponse) {
-// 			defer wg.Done()
-// 			mod.Model.Train(data, target)
-// 		}(m)
-// 	}
-// 	wg.Wait()
-
-// 	return resps
-// }
-
-// trains the models present in a DTResponse
+// trains the classification models present in a DTResponse
 // and retunrs a new DTResponse array with trained models
+func trainDecisionTreeClassifier(trainingInstructions []instruction.DecisiontreeClassIntruction,
+	data, target linearalgebra.Matrix) []DTResponse {
+
+	responses := make([]DTResponse, 0, len(trainingInstructions))
+	// resp := classifyModels(trainingInstructions)
+
+	//Initialize models
+	for _, m := range trainingInstructions {
+
+		c_opt := options.NewDTreeClassifierOption(m.Criterion)
+		model := treemodels.NewDecicionTreeeClassifier(c_opt)
+		resp := newDTResponse(m.Name, model)
+		responses = append(responses, resp)
+	}
+
+	// train models concurrently
+	var wg sync.WaitGroup
+
+	for _, m := range responses {
+		wg.Add(1)
+		go func(mod DTResponse) {
+			defer wg.Done()
+			mod.Model.Train(data, target)
+		}(m)
+	}
+	wg.Wait()
+
+	return responses
+}
 
 // given a DTResponse array creates a zip file containing
 // the models as a .dot files
