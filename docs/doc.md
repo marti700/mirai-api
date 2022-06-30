@@ -1,15 +1,17 @@
 # Available endpoints
 
+for each point two request example are provided. The first one is the general form of the request and the second one is a concrete request that will produce an actual response if the app is executed locally.
+
 ## /regression
 
  Trains a linear regression model this endpoint returns an array of json models trained based on the provided instructions. To see the posible instruction combinations check the linReg.md file in the instructions_example folder
 
- request example:
- curl -F 'json=@path/to/instruction/file.json' -F 'train=@path/to/train/data.csv' -F 'target=@path/to/target/data.csv' http://localhost:9090/regression
+ **request example:**\
+ curl -F 'json=@path/to/instruction/file.json' -F 'train=@path/to/train/data.csv' -F 'target=@path/to/target/data.csv' <http://localhost:9090/regression>
 
- curl -F 'json=@./parser/instruction/linReg.json' -F 'train=@./reqhandler/benchmarkdata/x_train.csv' -F 'target=@./reqhandler/benchmarkdata/y_train.csv' http://localhost:9090/regression
+ curl -F 'json=@./parser/instruction/linReg.json' -F 'train=@./reqhandler/benchmarkdata/x_train.csv' -F 'target=@./reqhandler/benchmarkdata/y_train.csv' <http://localhost:9090/regression>
 
- response example:
+ **response example:**
 
  ```json
 [
@@ -113,20 +115,26 @@
 
 ## /decisiontree/regression
 
-Trains a dicision tree model for regression. Since tree model can be hard to read as json a .dot files are downloaded instead as representation of the models
+Trains a dicision tree model for regression. Since tree model can be hard to read as json a .dot files are downloaded instead as a representation of the trained models.
 
-request example:
+**request example:**
 
-curl -F 'json=@path/to/instruction/file.json' -F 'train=@path/to/train/data.csv' -F 'target=@path/to/target/data.csv' http://localhost:9090/decisiontree/regression > aquielacosar.zip
+curl -F 'json=@path/to/instruction/file.json' -F 'train=@path/to/train/data.csv' -F 'target=@path/to/target/data.csv' <http://localhost:9090/decisiontree/regression> > models.zip
 
-curl -F 'json=@./parser/instruction/decisionTreeRegressor.json' -F 'train=@./reqhandler/benchmarkdata/x_train.csv' -F 'target=@./reqhandler/benchmarkdata/y_train.csv' http://localhost:9090/decisiontree/regression > aquielacosar.zip
+curl -F 'json=@./parser/instruction/decisionTreeRegressor.json' -F 'train=@./reqhandler/benchmarkdata/x_train.csv' -F 'target=@./reqhandler/benchmarkdata/y_train.csv' <http://localhost:9090/decisiontree/regression> > models.zip
+
+**response:**
+The response will be a zip file with a diagram of the model as a .dot file
 
 ## /decisiontree/classification
 
-Trains a dicision tree model for classification. Since tree model can be hard to read as json a zip of .dot files are downloaded instead as representation of the models
+Trains a dicision tree model for classification. Since tree model can be hard to read as json a zip of .dot files are downloaded instead as representation of the trained models.
 
-request example:
+**request example:**
 
-curl -F 'json=@path/to/instruction/file.json' -F 'train=@path/to/train/data.csv' -F 'target=@path/to/target/data.csv' http://localhost:9090/decisiontree/regression > aquielacosar.zip
+curl -F 'json=@path/to/instruction/file.json' -F 'train=@path/to/train/data.csv' -F 'target=@path/to/target/data.csv' <http://localhost:9090/decisiontree/regression> > models.zip
 
-curl -F 'json=@./parser/instruction/decisionTreeClassifier.json' -F 'train=@./reqhandler/benchmarkdata/x_train.csv' -F 'target=@./reqhandler/benchmarkdata/y_train.csv' http://localhost:9090/decisiontree/classification > aquielacosac.zip
+curl -F 'json=@./parser/instruction/decisionTreeClassifier.json' -F 'train=@./reqhandler/benchmarkdata/x_train.csv' -F 'target=@./reqhandler/benchmarkdata/y_train.csv' <http://localhost:9090/decisiontree/classification> > models.zip
+
+**response:**
+The response will be a zip file with a diagram of the model as a .dot file

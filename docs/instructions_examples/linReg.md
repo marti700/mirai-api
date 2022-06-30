@@ -1,12 +1,8 @@
-# Linear regression model instructions
+# Linear regression instruction fields
 
-Instructions tells the api how the models are going to be trained. There are many methods to estimate a model hyperparameters
-the instruction file allows you to specify many training methods at once as an array of intruction in a json file
+**name:** is an id for the model. This will allow you to recognize what model was trined with this instruction
 
-## Linear regression instruction fields
-
-name: is an id for the model. This will allow you to recognize what model was trined with this instruction
-estimators: specify what estimator should be used to train the linear regression model. Supported options are:
+**estimators:** specify what estimator should be used to train the linear regression model. Supported options are:
 
 - GD for gradient descent this one must be specified as a json object (with "GD key") with the following properties:
     Iterations: the max number of iteration the GD loop will make
@@ -37,7 +33,7 @@ estimators: specify what estimator should be used to train the linear regression
 supported types are "l1" for lasso regression and "l2" for ridge regression\
 the lambda value must be a float value
 
-## Example
+## Complete example
 
 ```json
 [
