@@ -1,6 +1,11 @@
 package instruction
 
-import "mime/multipart"
+import (
+	"encoding/json"
+	"io/ioutil"
+	"log"
+	"mime/multipart"
+)
 
 // interface to be implemented by all the instructions
 // the parse method parses the instructions from a json file
@@ -14,9 +19,14 @@ type Instruction interface {
 // the Instructions field are the instructions used to train the model
 
 type Instructions struct {
-	InstructionType string      `json:modelType`
-	Name            string      `json:name`
-	Instructions    Instruction `json:instructions`
+	InstructionType string        `json:modelType`
+	Name            string        `json:name`
+	Instructions    []Instruction `json:instructions`
+}
+
+// Creates and returns an empty Instructions Entity
+func NewInstructions() Instructions {
+	return Instructions{}
 }
 
 // Ej:
@@ -61,5 +71,20 @@ type Instructions struct {
 //   }
 // ]
 
-// func (ins Instructions) Parse(f multipart.File) []Instruction {
-// }
+func (i Instructions) Parse(f multipart.File) []Instructions {
+	filebytes, _ := ioutil.ReadAll(f)
+	var ins []Instructions
+	// err := json.Unmarshal(filebytes, &ins)
+	var objmap []interface{} // loop through this
+	// var objmap map[string]interface{} // declare this in neach iteration of the loop
+	// objmap["instructionType"] and objmap["instrctions"]
+
+	err := json.Unmarshal(filebytes, &objmap)
+	// err1 := json.Unmarshal(r, &li)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return ins
+}

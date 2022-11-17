@@ -27,32 +27,43 @@ type DecisiontreeClassIntruction struct {
 	Criterion string `json:"criterion"`
 }
 
+// Creates an empty decision tree regresson entity
+func NewDecisionRegresor() DecisiontreeRegIntruction {
+	return DecisiontreeRegIntruction{}
+}
+
+// Creates an empty decision tree classifier entity
+func NewDecisionClassifier() DecisiontreeClassIntruction {
+	return DecisiontreeClassIntruction{}
+}
+
 // parses the decision tree regression training instructions from a json file
 // the json file must be a representation of an array of DecisiontreeRegIntruction
 // for example :
 
 // [
-//   {
-//     "name": "model3",
-//     "kind": "regressor",
-//     "criterion": "RSS",
-//     "minLeafSamples": 20
-//   },
-//   {
-//     "name": "model4",
-//     "kind": "regressor",
-//     "criterion": "MSE",
-//     "minLeafSamples": 20
-//   }
+//
+//	{
+//	  "name": "model3",
+//	  "kind": "regressor",
+//	  "criterion": "RSS",
+//	  "minLeafSamples": 20
+//	},
+//	{
+//	  "name": "model4",
+//	  "kind": "regressor",
+//	  "criterion": "MSE",
+//	  "minLeafSamples": 20
+//	}
+//
 // ]
-func ParseDTRegInstruction(f multipart.File) []DecisiontreeRegIntruction {
+func (dcr DecisiontreeRegIntruction) Parse(f multipart.File) []DecisiontreeRegIntruction {
 	filebytes, _ := ioutil.ReadAll(f)
 	var instructions []DecisiontreeRegIntruction
 	err := json.Unmarshal(filebytes, &instructions)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	return instructions
 }
 
@@ -61,24 +72,25 @@ func ParseDTRegInstruction(f multipart.File) []DecisiontreeRegIntruction {
 // for example :
 
 // [
-//   {
-//     "name": "model1",
-//     "kind": "classifier",
-//     "criterion": "GINI"
-//   },
-//   {
-//     "name": "model2",
-//     "kind": "classifier",
-//     "criterion": "ENTROPY"
-//   }
+//
+//	{
+//	  "name": "model1",
+//	  "kind": "classifier",
+//	  "criterion": "GINI"
+//	},
+//	{
+//	  "name": "model2",
+//	  "kind": "classifier",
+//	  "criterion": "ENTROPY"
+//	}
+//
 // ]
-func ParseDTClassInstruction(f multipart.File) []DecisiontreeClassIntruction {
+func (dtc DecisiontreeClassIntruction) Parse(f multipart.File) []DecisiontreeClassIntruction {
 	filebytes, _ := ioutil.ReadAll(f)
 	var instructions []DecisiontreeClassIntruction
 	err := json.Unmarshal(filebytes, &instructions)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	return instructions
 }

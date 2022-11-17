@@ -2,38 +2,44 @@
   {
     "InstructionType": "linearregression",
     "name": "first Instruction",
-    "instructions": {
-      "estimators": {
-        "GD": {
-          "Iteations": 1000,
-          "LearningRate": 0.01,
-          "MinStepSize": 0.00003
+    "instructions": [
+      {
+        "estimators": {
+          "GD": {
+            "Iteations": 1000,
+            "LearningRate": 0.01,
+            "MinStepSize": 0.00003
+          },
+          "OLS": false
         },
-        "OLS": false
-      },
-      "regularization": {
-        "type": "l1",
-        "lambda": 20.0
+        "regularization": {
+          "type": "l1",
+          "lambda": 20.0
+        }
       }
-    }
+    ]
   },
   {
     "InstructionType": "DecisionTreeClassifier",
     "name": "second Instruction DTC",
-    "instructions": {
-      "name": "Instruction1",
-      "kind": "classifier",
-      "criterion": "GINI"
-    }
+    "instructions": [
+      {
+        "name": "Instruction1",
+        "kind": "classifier",
+        "criterion": "GINI"
+      }
+    ]
   },
   {
     "InstructionType": "DecisionTreeRegressor",
     "name": "third Instruction",
-    "instructions": {
-      "name": "Instruction3",
-      "kind": "regressor",
-      "criterion": "RSS",
-      "minLeafSamples": 20
-    }
+    "instructions": [
+      {
+        "name": "Instruction3",
+        "kind": "regressor",
+        "criterion": "RSS",
+        "minLeafSamples": 20
+      }
+    ]
   }
 ]

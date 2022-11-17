@@ -15,7 +15,6 @@ type Estimators struct {
 	OLS bool              `json:"OLS"`
 }
 
-
 // represents a linear regression instructions
 // the Name field is the id of the instruction and have the same value as its corresponding model in the service response
 // Estimators are the linear model estimators supported by mirai current options are GD which will train the model using Gradiant Descent
@@ -27,55 +26,72 @@ type LinearRegInstructions struct {
 	Regularization options.RegOptions `json:"regularization"`
 }
 
+// Returns an empty LinearRegInstruction entity
+func NewLinearRegInstructions() LinearRegInstructions {
+	return LinearRegInstructions{}
+}
+
 // parses the linear regression training instructions from a json file
 // the json file must be a representation of an array of LinearRegInstructions
 // for example :
 
 // [
-//   {
-//     "name": "first model",
-//     "estimators": {
-//       "GD": {
-//         "Iteations": 1000,
-//         "LearningRate": 0.001,
-//         "MinStepSize": 0.00003
-//       },
-//       "OLS": true
-//     },
-//     "regularization": {
-//       "type": "l1",
-//       "lambda": 0.01
-//     }
-//   },
-//   {
-//     "name": "second model",
-//     "estimators": {
-//       "GD": {
-//         "Iteations": 100,
-//         "LearningRate": 0.01,
-//         "MinStepSize": 0.002
-//       },
-//       "OLS": false
-//     },
-//     "regularization": {
-//       "type": "l2",
-//       "lambda": 0.01
-//     }
-//   },
-//   {
-//     "name": "third model",
-//     "estimators": {
-//       "OLS": true
-//     }
-//   }
+//
+//	{
+//	  "name": "first model",
+//	  "estimators": {
+//	    "GD": {
+//	      "Iteations": 1000,
+//	      "LearningRate": 0.001,
+//	      "MinStepSize": 0.00003
+//	    },
+//	    "OLS": true
+//	  },
+//	  "regularization": {
+//	    "type": "l1",
+//	    "lambda": 0.01
+//	  }
+//	},
+//	{
+//	  "name": "second model",
+//	  "estimators": {
+//	    "GD": {
+//	      "Iteations": 100,
+//	      "LearningRate": 0.01,
+//	      "MinStepSize": 0.002
+//	    },
+//	    "OLS": false
+//	  },
+//	  "regularization": {
+//	    "type": "l2",
+//	    "lambda": 0.01
+//	  }
+//	},
+//	{
+//	  "name": "third model",
+//	  "estimators": {
+//	    "OLS": true
+//	  }
+//	}
+//
 // ]
-func ParseInstruction(f multipart.File) []LinearRegInstructions {
+// func ParseInstruction(f multipart.File) []LinearRegInstructions {
+// 	filebytes, _ := ioutil.ReadAll(f)
+// 	var linRegInstructions []LinearRegInstructions
+// 	err := json.Unmarshal(filebytes, &linRegInstructions)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	return linRegInstructions
+// }
+
+func (lri LinearRegInstructions) Parse(f multipart.File) []LinearRegInstructions {
 	filebytes, _ := ioutil.ReadAll(f)
 	var linRegInstructions []LinearRegInstructions
 	err := json.Unmarshal(filebytes, &linRegInstructions)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	return linRegInstructions
 }

@@ -45,7 +45,8 @@ func HandleDecisionTreeRegressor(w http.ResponseWriter, r *http.Request) {
 
 	trainData := data.ReadDataFromCSV(dataFile)
 	targetData := data.ReadDataFromCSV(targetFile)
-	trainingInstructions := instruction.ParseDTRegInstruction(instructionsFile)
+
+	trainingInstructions := instruction.NewDecisionRegresor().Parse(instructionsFile)
 	filePath := prepareFiles(trainDecisionTreeRegressor(trainingInstructions, trainData, targetData))
 
 	f, err := ioutil.ReadFile(filePath + "/models.zip")
@@ -75,7 +76,7 @@ func HandleDecisionTreeClassifier(w http.ResponseWriter, r *http.Request) {
 
 	trainData := data.ReadDataFromCSV(dataFile)
 	targetData := data.ReadDataFromCSV(targetFile)
-	trainingInstructions := instruction.ParseDTClassInstruction(instructionsFile)
+	trainingInstructions := instruction.NewDecisionClassifier().Parse(instructionsFile)
 	filePath := prepareFiles(trainDecisionTreeClassifier(trainingInstructions, trainData, targetData))
 
 	f, err := ioutil.ReadFile(filePath + "/models.zip")

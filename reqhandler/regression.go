@@ -14,7 +14,7 @@ import (
 	"github.com/marti700/veritas/linearalgebra"
 )
 
-//holds the linear model response
+// holds the linear model response
 // The ModelName field will have the same value that its corresponding instrucitions
 // Model will be  the trained linear regression model
 type LrResponse struct {
@@ -25,7 +25,7 @@ type LrResponse struct {
 func newLrResponse(id string, model linearmodels.LinearRegression) LrResponse {
 	return LrResponse{
 		ModelName: id,
-		Model: model,
+		Model:     model,
 	}
 }
 
@@ -42,8 +42,10 @@ func HandleRegression(w http.ResponseWriter, r *http.Request) {
 
 	trainData := data.ReadDataFromCSV(dataFile)
 	targetData := data.ReadDataFromCSV(targetFile)
-	trainingInstructions := instruction.ParseInstruction(instructionsFile)
-	resp, err := json.Marshal(trainModels(trainingInstructions, trainData, targetData))
+	trainingInstructions := instruction.NewLinearRegInstructions()
+	trainingInstructions.Parse(instructionsFile)
+
+	resp, err := json.Marshal(trainModels(trainingInstructions.Parse(instructionsFile), trainData, targetData))
 	if err != nil {
 		fmt.Println(err)
 	}

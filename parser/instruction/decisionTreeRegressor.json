@@ -2,8 +2,8 @@
   {
     "name": "model3",
     "kind": "regressor",
-    "criterion": "RSS",
-    "minLeafSamples": 20
+    "criterion": "rss",
+    "minleafsamples": 20
   },
   {
     "name": "model4",

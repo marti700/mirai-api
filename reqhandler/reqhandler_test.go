@@ -1,6 +1,7 @@
 package reqhandler
 
 import (
+	"fmt"
 	"mirai-api/parser/data"
 	"mirai-api/parser/instruction"
 	"os"
@@ -18,10 +19,10 @@ func BenchmarkTrainModels(b *testing.B) {
 
 	train := data.ReadDataFromCSV(trainDataFile)
 	target := data.ReadDataFromCSV(targetDataFile)
-	instructions := instruction.ParseInstruction(instructionFile)
+	instructions := instruction.NewLinearRegInstructions().Parse(instructionFile)
 
 	for i := 0; i < b.N; i++ {
-			trainModels(instructions, train, target)
+		trainModels(instructions, train, target)
 	}
 
 }
@@ -37,10 +38,10 @@ func BenchmarkTrainDecisionTreeRegressor(b *testing.B) {
 
 	train := data.ReadDataFromCSV(trainDataFile)
 	target := data.ReadDataFromCSV(targetDataFile)
-	instructions := instruction.ParseDTRegInstruction(instructionFile)
+	instructions := instruction.NewDecisionRegresor().Parse(instructionFile)
 
 	for i := 0; i < b.N; i++ {
-			trainDecisionTreeRegressor(instructions, train, target)
+		trainDecisionTreeRegressor(instructions, train, target)
 	}
 
 }
@@ -50,16 +51,19 @@ func BenchmarkTrainDecisionTreeClassier(b *testing.B) {
 	trainDataFile, _ := os.Open("./benchmarkdata/x_train.csv")
 	targetDataFile, _ := os.Open("./benchmarkdata/y_train.csv")
 	instructionFile, _ := os.Open("./benchmarkdata/decisionTreeClassifier.json")
+	ii, _ := os.Open("./benchmarkdata/all.json")
 	defer trainDataFile.Close()
 	defer targetDataFile.Close()
 	defer instructionFile.Close()
 
 	train := data.ReadDataFromCSV(trainDataFile)
 	target := data.ReadDataFromCSV(targetDataFile)
-	instructions := instruction.ParseDTClassInstruction(instructionFile)
+	instructions := instruction.NewDecisionClassifier().Parse(instructionFile)
+	inst := instruction.NewInstructions().Parse(ii)
+	fmt.Println(inst)
 
 	for i := 0; i < b.N; i++ {
-			trainDecisionTreeClassifier(instructions, train, target)
+		trainDecisionTreeClassifier(instructions, train, target)
 	}
 
 }
