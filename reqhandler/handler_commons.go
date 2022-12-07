@@ -20,3 +20,13 @@ func CloseFiles(f1, f2, f3 multipart.File) {
 	f2.Close()
 	f3.Close()
 }
+
+// returns the instructions in instructions.Instructions as a slice of LinearRegInstructions
+// func coerceToLinRegIns(ins instruction.Instructions) []instruction.LinearRegInstructions {
+// 	regIns := make([]instruction.LinearRegInstructions, len(ins.Instructions))
+
+// 	for i, e := range ins.Instructions {
+// 		regIns[i] = e.(instruction.LinearRegInstructions)
+// 	}
+// 	return regIns
+// }

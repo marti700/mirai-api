@@ -5,12 +5,14 @@ import (
 	"io/ioutil"
 	"log"
 	"mime/multipart"
+
+	model "github.com/marti700/mirai/models"
 )
 
 // interface to be implemented by all the instructions
 // the parse method parses the instructions from a json file
 type Instruction interface {
-	Parse(f multipart.File) []Instructions
+	Parse(f multipart.File) Instructions
 }
 
 // Represents a set of instructions
@@ -21,7 +23,7 @@ type Instruction interface {
 type Instructions struct {
 	InstructionType string        `json:modelType`
 	Name            string        `json:name`
-	Instructions    []Instruction `json:instructions`
+	Models          []model.Model `json:instructions`
 }
 
 // Creates and returns an empty Instructions Entity
@@ -73,18 +75,51 @@ func NewInstructions() Instructions {
 
 func (i Instructions) Parse(f multipart.File) []Instructions {
 	filebytes, _ := ioutil.ReadAll(f)
-	var ins []Instructions
-	// err := json.Unmarshal(filebytes, &ins)
-	var objmap []interface{} // loop through this
-	// var objmap map[string]interface{} // declare this in neach iteration of the loop
-	// objmap["instructionType"] and objmap["instrctions"]
+	inss := make([]Instructions, 0, 200)
+	// mod := make([]model.Model, 200)
 
+	var objmap []interface{}
 	err := json.Unmarshal(filebytes, &objmap)
+	// j := objmap[0]
+	// r := j.(map[string]interface{})
+
+	for _, ins := range objmap {
+		instruction := ins.(map[string]interface{})
+		insType := instruction["InstructionType"].(string)
+		if insType == "linearregression" {
+			//create model initializers package to initialize model depending on their types ej: linRegInitializer, TreeInitializer, etc
+			linRegIns := getLinearRegIns(instruction["instructions"].([]interface{}))
+			// copy(mod, initalizeLinRegModel(linRegIns))
+
+			regModels := Instructions{
+				InstructionType: insType,
+				Name:            instruction["name"].(string),
+				Models:          initalizeLinRegModel(linRegIns),
+			}
+			inss = append(inss, regModels)
+		}
+	}
 	// err1 := json.Unmarshal(r, &li)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return ins
+	// fmt.Println(r)
+
+	return inss
+}
+
+func getLinearRegIns(ins []interface{}) []LinearRegInstructions {
+	var linRegIns []LinearRegInstructions
+	// x := h.([]interface{})
+	b, _ := json.Marshal(ins)
+	// b := x[0].([]byte)
+	error := json.Unmarshal(b, &linRegIns)
+
+	if error != nil {
+		log.Fatal(error)
+	}
+
+	return linRegIns
 }
