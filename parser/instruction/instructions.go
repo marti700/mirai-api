@@ -21,9 +21,9 @@ type Instruction interface {
 // the Instructions field are the instructions used to train the model
 
 type Instructions struct {
-	InstructionType string                   `json:modelType`
-	Name            string                   `json:name`
-	Models          []map[string]model.Model `json:instructions`
+	InstructionType string                   `json:"modelType"`
+	Name            string                   `json:"name"`
+	Models          []map[string]model.Model `json:"instructions"`
 }
 
 // Creates and returns an empty Instructions Entity
