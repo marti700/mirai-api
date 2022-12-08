@@ -20,7 +20,7 @@
     ]
   },
   {
-    "InstructionType": "DecisionTreeClassifier",
+    "InstructionType": "decisiontreeclassifier",
     "name": "second Instruction DTC",
     "instructions": [
       {
@@ -31,7 +31,7 @@
     ]
   },
   {
-    "InstructionType": "DecisionTreeRegressor",
+    "InstructionType": "decisiontreeregressor",
     "name": "third Instruction",
     "instructions": [
       {

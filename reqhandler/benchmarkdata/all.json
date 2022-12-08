@@ -4,40 +4,73 @@
     "name": "first Instruction",
     "instructions": [
       {
+        "name": "first model",
         "estimators": {
           "GD": {
             "Iteations": 1000,
-            "LearningRate": 0.01,
+            "LearningRate": 0.001,
             "MinStepSize": 0.00003
+          },
+          "OLS": true
+        },
+        "regularization": {
+          "type": "l1",
+          "lambda": 0.01
+        }
+      },
+      {
+        "name": "second model",
+        "estimators": {
+          "GD": {
+            "Iteations": 100,
+            "LearningRate": 0.01,
+            "MinStepSize": 0.002
           },
           "OLS": false
         },
         "regularization": {
-          "type": "l1",
-          "lambda": 20.0
+          "type": "l2",
+          "lambda": 0.01
+        }
+      },
+      {
+        "name": "third model",
+        "estimators": {
+          "OLS": true
         }
       }
     ]
   },
   {
-    "InstructionType": "DecisionTreeClassifier",
+    "InstructionType": "decisiontreeclassifier",
     "name": "second Instruction DTC",
     "instructions": [
       {
-        "name": "Instruction1",
+        "name": "model1",
         "kind": "classifier",
         "criterion": "GINI"
+      },
+      {
+        "name": "model2",
+        "kind": "classifier",
+        "criterion": "ENTROPY"
       }
     ]
   },
   {
-    "InstructionType": "DecisionTreeRegressor",
+    "InstructionType": "decisiontreeregressor",
     "name": "third Instruction",
     "instructions": [
       {
-        "name": "Instruction3",
+        "name": "model3",
         "kind": "regressor",
         "criterion": "RSS",
+        "minLeafSamples": 20
+      },
+      {
+        "name": "model4",
+        "kind": "regressor",
+        "criterion": "MSE",
         "minLeafSamples": 20
       }
     ]
