@@ -73,7 +73,7 @@ func NewInstructions() Instructions {
 //   }
 // ]
 
-func (i Instructions) Parse(f multipart.File) []Instructions {
+func Parse(f multipart.File) []Instructions {
 	filebytes, _ := ioutil.ReadAll(f)
 	inss := make([]Instructions, 0, 200)
 
