@@ -2,7 +2,6 @@ package reqhandler
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"mirai-api/parser/data"
 	"mirai-api/parser/instruction"
@@ -47,7 +46,7 @@ func HandleRegression(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := json.Marshal(trainModels(trainingInstructions.Parse(instructionsFile), trainData, targetData))
 	if err != nil {
-		fmt.Println(err)
+		// fmt.Println(err)
 	}
 	w.Write(resp)
 }
@@ -121,14 +120,14 @@ func trainModelC(trainIns instruction.LinearRegInstructions, data, target linear
 			Estimator:      options.NewOLSOptions(),
 			Regularization: trainIns.Regularization,
 		}
-		lr.Train(target, data)
+		lr.Train(data, target)
 		lrmChan <- newLrResponse(trainIns.Name, lr)
 	} else if !isEmptyGD(trainIns.Estimators.GD) {
 		lr.Opts = options.LROptions{
 			Estimator:      trainIns.Estimators.GD,
 			Regularization: trainIns.Regularization,
 		}
-		lr.Train(target, data)
+		lr.Train(data, target)
 		lrmChan <- newLrResponse(trainIns.Name, lr)
 	}
 }
