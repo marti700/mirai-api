@@ -51,7 +51,6 @@ func BenchmarkTrainDecisionTreeClassier(b *testing.B) {
 	trainDataFile, _ := os.Open("./benchmarkdata/x_train.csv")
 	targetDataFile, _ := os.Open("./benchmarkdata/y_train.csv")
 	instructionFile, _ := os.Open("./benchmarkdata/decisionTreeClassifier.json")
-	ii, _ := os.Open("./benchmarkdata/all.json")
 	defer trainDataFile.Close()
 	defer targetDataFile.Close()
 	defer instructionFile.Close()
@@ -59,8 +58,6 @@ func BenchmarkTrainDecisionTreeClassier(b *testing.B) {
 	train := data.ReadDataFromCSV(trainDataFile)
 	target := data.ReadDataFromCSV(targetDataFile)
 	instructions := instruction.NewDecisionClassifier().Parse(instructionFile)
-	inst := instruction.Parse(ii)
-	fmt.Println(inst)
 
 	for i := 0; i < b.N; i++ {
 		trainDecisionTreeClassifier(instructions, train, target)
@@ -78,7 +75,6 @@ func BenchmarkTrainM(b *testing.B) {
 	train := data.ReadDataFromCSV(trainDataFile)
 	target := data.ReadDataFromCSV(targetDataFile)
 	instructions := instruction.Parse(instructionFile)
-	fmt.Println(instructions)
 
 	for i := 0; i < b.N; i++ {
 		trainM(instructions, train, target)
