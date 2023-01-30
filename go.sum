@@ -2,5 +2,7 @@ github.com/marti700/mirai v0.0.0-20220613114924-a748ea5a6737 h1:IsyBWVl5opEP6pek
 github.com/marti700/mirai v0.0.0-20220613114924-a748ea5a6737/go.mod h1:xvSJ3dWlyoozoXGMZOMVKm4GFwHJCJsQP6a2TA1CLa8=
 github.com/marti700/mirai v0.0.0-20221115230843-d876a2e4e612 h1:lXqy/XDCEmzJrQlXvbur5H/6aTqoYMJZ2hzpt8h8sWc=
 github.com/marti700/mirai v0.0.0-20221115230843-d876a2e4e612/go.mod h1:xvSJ3dWlyoozoXGMZOMVKm4GFwHJCJsQP6a2TA1CLa8=
+github.com/marti700/mirai v0.0.0-20230111121844-d0728b7c684b h1:CuwNTME3aSccu5crinwKggA+BUyio+WipmXkvtrj6z8=
+github.com/marti700/mirai v0.0.0-20230111121844-d0728b7c684b/go.mod h1:xvSJ3dWlyoozoXGMZOMVKm4GFwHJCJsQP6a2TA1CLa8=
 github.com/marti700/veritas v0.0.0-20220523105331-1d62dd4e51ca h1:CR/rV2Cmk4PyWPk2IcPcw4GS0N2PfHWNRH1dowTTdzA=
 github.com/marti700/veritas v0.0.0-20220523105331-1d62dd4e51ca/go.mod h1:j8HtjoGpCxS7QCU5+/c+yvJ3G+xfDpY2wrH+Yia58Fo=

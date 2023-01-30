@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"sync"
 
-	model "github.com/marti700/mirai/models"
 	"github.com/marti700/veritas/linearalgebra"
 )
 
@@ -20,16 +19,34 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 func trainM(trainInstructions []instruction.Instructions, data, target linearalgebra.Matrix) {
 	var wg sync.WaitGroup
-	for _, instruction := range trainInstructions {
-		for _, models := range instruction.Models {
+	for _, ins := range trainInstructions {
+		for _, models := range ins.Models {
 			for key, value := range models {
 				wg.Add(1)
-				go func(key string, mod model.Model) {
-					mod.Train(data, target)
+				go func(key string, mod instruction.MiraiModel) {
+					mod.Mod.Train(data, target)
+					mod.Report.CreateReport(data, target, mod.Mod)
 					wg.Done()
 				}(key, value)
 			}
 		}
 	}
 	wg.Wait()
+}
+
+func generateReports(trainInstructions []instruction.Instructions, data, target linearalgebra.Matrix) {
+	// var wg sync.WaitGroup
+	// for _, ins := range trainInstructions {
+	// 	for _, models := range ins.Models {
+	// 		for key, value := range models {
+	// 			wg.Add(1)
+	// 			go func(key string, mod instruction.MiraiModel) {
+	// 				rep := mod.Report
+	// 				mod.Report = rep.CreateReport(data, target, mod.Mod)
+	// 				wg.Done()
+	// 			}(key, value)
+	// 		}
+	// 	}
+	// }
+	// wg.Wait()
 }

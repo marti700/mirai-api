@@ -1,16 +1,17 @@
 package instruction
 
 import (
+	"mirai-api/report"
+
 	"github.com/marti700/mirai/metrics"
-	model "github.com/marti700/mirai/models"
 	"github.com/marti700/mirai/models/linearmodels"
 	"github.com/marti700/mirai/models/treemodels"
 	"github.com/marti700/mirai/options"
 )
 
 // Recieves a LinearRegressionInstructions slice to initialize linear regression models
-func initalizeLinRegModel(trainIns []LinearRegInstructions) []map[string]model.Model {
-	mod := make([]map[string]model.Model, len(trainIns))
+func initalizeLinRegModel(trainIns []LinearRegInstructions) []map[string]MiraiModel {
+	mod := make([]map[string]MiraiModel, len(trainIns))
 	// modelChanel := make(chan model.Model)
 
 	for i, ins := range trainIns {
@@ -26,32 +27,42 @@ func initalizeLinRegModel(trainIns []LinearRegInstructions) []map[string]model.M
 				Regularization: ins.Regularization,
 			}
 		}
-		m := make(map[string]model.Model)
-		m[ins.Name] = &lr
+		m := make(map[string]MiraiModel)
+		rep := report.NewRegressionReport()
+		miModel := MiraiModel{
+			Mod:    &lr,
+			Report: &rep,
+		}
+		m[ins.Name] = miModel
 		mod[i] = m
 	}
 
 	return mod
 }
 
-func initializeDecisionTreeClassifierModel(trainIns []DecisiontreeClassIntruction) []map[string]model.Model {
-	mod := make([]map[string]model.Model, len(trainIns))
+func initializeDecisionTreeClassifierModel(trainIns []DecisiontreeClassIntruction) []map[string]MiraiModel {
+	mod := make([]map[string]MiraiModel, len(trainIns))
 
 	//Initialize models
 	for i, ins := range trainIns {
 		c_opt := options.NewDTreeClassifierOption(ins.Criterion)
 		treeModel := treemodels.NewDecicionTreeeClassifier(c_opt)
 
-		m := make(map[string]model.Model)
-		m[ins.Name] = treeModel
+		m := make(map[string]MiraiModel)
+		rep := report.NewClassificationReport()
+		miModel := MiraiModel{
+			Mod:    treeModel,
+			Report: &rep,
+		}
+		m[ins.Name] = miModel
 		mod[i] = m
 	}
 
 	return mod
 }
 
-func initializeDecisionTreeRegressorModel(trainIns []DecisiontreeRegIntruction) []map[string]model.Model {
-	mod := make([]map[string]model.Model, len(trainIns))
+func initializeDecisionTreeRegressorModel(trainIns []DecisiontreeRegIntruction) []map[string]MiraiModel {
+	mod := make([]map[string]MiraiModel, len(trainIns))
 
 	//Initialize models
 	for i, ins := range trainIns {
@@ -64,8 +75,13 @@ func initializeDecisionTreeRegressorModel(trainIns []DecisiontreeRegIntruction) 
 
 		treeModel := treemodels.NewDecisionTreeRegressor(reg_opt)
 
-		m := make(map[string]model.Model)
-		m[ins.Name] = treeModel
+		m := make(map[string]MiraiModel)
+		rep := report.NewRegressionReport()
+		miModel := MiraiModel{
+			Mod:    treeModel,
+			Report: &rep,
+		}
+		m[ins.Name] = miModel
 		mod[i] = m
 	}
 
