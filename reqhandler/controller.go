@@ -26,27 +26,11 @@ func trainM(trainInstructions []instruction.Instructions, data, target linearalg
 				go func(key string, mod instruction.MiraiModel) {
 					mod.Mod.Train(data, target)
 					mod.Report.CreateReport(data, target, mod.Mod)
+					mod.Report.ToString()
 					wg.Done()
 				}(key, value)
 			}
 		}
 	}
 	wg.Wait()
-}
-
-func generateReports(trainInstructions []instruction.Instructions, data, target linearalgebra.Matrix) {
-	// var wg sync.WaitGroup
-	// for _, ins := range trainInstructions {
-	// 	for _, models := range ins.Models {
-	// 		for key, value := range models {
-	// 			wg.Add(1)
-	// 			go func(key string, mod instruction.MiraiModel) {
-	// 				rep := mod.Report
-	// 				mod.Report = rep.CreateReport(data, target, mod.Mod)
-	// 				wg.Done()
-	// 			}(key, value)
-	// 		}
-	// 	}
-	// }
-	// wg.Wait()
 }
