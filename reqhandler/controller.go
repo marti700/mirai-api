@@ -1,10 +1,15 @@
 package reqhandler
 
 import (
+	"archive/zip"
+	"io"
+	"log"
 	"mirai-api/parser/data"
 	"mirai-api/parser/instruction"
 	"net/http"
+	"os"
 	"sync"
+	"time"
 
 	"github.com/marti700/veritas/linearalgebra"
 )
@@ -33,4 +38,50 @@ func trainM(trainInstructions []instruction.Instructions, data, target linearalg
 		}
 	}
 	wg.Wait()
+}
+
+func prepareFiles1(instructions []instruction.Instructions) {
+	dirName := time.Now().String()
+	err := os.Mkdir(dirName, os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// archive, err := os.Create(dirName + "/models.zip")
+
+	for _, ins := range instructions {
+		// create an empty zip file
+		archive, err := os.Create(dirName + "/" + ins.InstructionType + ".zip")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer archive.Close()
+
+		// createa a zip writer this will write files to the archive we created in line 52
+		zipWriter := zip.NewWriter(archive)
+		defer zipWriter.Close()
+		for _, mods := range ins.Models {
+			for key, value := range mods {
+
+				reportString := key + " \n" + value.Report.ToString() + "\n"
+				reportsPath := dirName + "/" + ins.InstructionType + ".txt"
+
+				// creates the report file, if the file does not exists create it otherwise just append data
+				reportFile, err := os.OpenFile(reportsPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				reportFile.WriteString(reportString)
+
+				// creates a file inside the zip archive, this is the file to be compresed
+				zipFile, err := zipWriter.Create(ins.InstructionType + ".txt")
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				// copies contents to the archive file
+				io.Copy(zipFile, reportFile)
+			}
+		}
+	}
 }

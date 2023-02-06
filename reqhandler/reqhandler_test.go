@@ -80,4 +80,5 @@ func BenchmarkTrainM(b *testing.B) {
 		trainM(instructions, train, target)
 	}
 	fmt.Println("trained")
+	prepareFiles1(instructions)
 }
