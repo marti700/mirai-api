@@ -1,7 +1,10 @@
 package reqhandler
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
+	"log"
 	"mirai-api/parser/data"
 	"mirai-api/parser/instruction"
 	"os"
@@ -80,5 +83,30 @@ func BenchmarkTrainM(b *testing.B) {
 		trainM(instructions, train, target)
 	}
 	fmt.Println("trained")
-	prepareFiles1(instructions)
+}
+
+func TestReports(t *testing.T) {
+	trainDataFile, _ := os.Open("./benchmarkdata/x_train.csv")
+	targetDataFile, _ := os.Open("./benchmarkdata/y_train.csv")
+	instructionFile, _ := os.Open("./benchmarkdata/all.json")
+	defer trainDataFile.Close()
+	defer targetDataFile.Close()
+	defer instructionFile.Close()
+
+	train := data.ReadDataFromCSV(trainDataFile)
+	target := data.ReadDataFromCSV(targetDataFile)
+	instructions := instruction.Parse(instructionFile)
+
+	trainM(instructions, train, target)
+	pathToReports := prepareReports(instructions)
+
+	_, err := os.Open(pathToReports + "/reports.zip")
+	if errors.Is(err, fs.ErrNotExist) {
+		t.Error("File was not correclty created")
+	}
+	//clean up
+	err = os.RemoveAll(pathToReports)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

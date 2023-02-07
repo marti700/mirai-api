@@ -3,11 +3,15 @@ package reqhandler
 import (
 	"archive/zip"
 	"io"
+	"io/fs"
 	"log"
 	"mirai-api/parser/data"
 	"mirai-api/parser/instruction"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -40,31 +44,18 @@ func trainM(trainInstructions []instruction.Instructions, data, target linearalg
 	wg.Wait()
 }
 
-func prepareFiles1(instructions []instruction.Instructions) {
-	dirName := time.Now().String()
+func prepareReports(instructions []instruction.Instructions) string {
+	dirName := strconv.FormatInt(time.Now().Unix(), 10)
 	err := os.Mkdir(dirName, os.ModePerm)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// archive, err := os.Create(dirName + "/models.zip")
 
 	for _, ins := range instructions {
-		// create an empty zip file
-		archive, err := os.Create(dirName + "/" + ins.InstructionType + ".zip")
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer archive.Close()
-
-		// createa a zip writer this will write files to the archive we created in line 52
-		zipWriter := zip.NewWriter(archive)
-		defer zipWriter.Close()
 		for _, mods := range ins.Models {
 			for key, value := range mods {
-
 				reportString := key + " \n" + value.Report.ToString() + "\n"
 				reportsPath := dirName + "/" + ins.InstructionType + ".txt"
-
 				// creates the report file, if the file does not exists create it otherwise just append data
 				reportFile, err := os.OpenFile(reportsPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 				if err != nil {
@@ -72,16 +63,55 @@ func prepareFiles1(instructions []instruction.Instructions) {
 				}
 
 				reportFile.WriteString(reportString)
+				defer reportFile.Close()
 
-				// creates a file inside the zip archive, this is the file to be compresed
-				zipFile, err := zipWriter.Create(ins.InstructionType + ".txt")
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				// copies contents to the archive file
-				io.Copy(zipFile, reportFile)
 			}
 		}
+	}
+	zipReports(dirName)
+
+	return dirName + "/"
+}
+
+func zipReports(pathToReportFolder string) {
+	// create an empty zip file
+	archive, err := os.Create(pathToReportFolder + "/reports" + ".zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer archive.Close()
+
+	// createa a zip writer this will write files to the archive we created in line 52
+	zipWriter := zip.NewWriter(archive)
+	defer zipWriter.Close()
+
+	walkerFunc := func(path string, info fs.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+		// avoids the zip file processing and avoids the root folder name to be taken into consideration
+		if !strings.HasSuffix(path, "zip") {
+			f, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+
+			// creates a file inside the zip archive, this is the file to be compresed
+			if path != pathToReportFolder {
+				zipFile, err := zipWriter.Create(path)
+				if err != nil {
+					return err
+				}
+				// copies contents to the archive file
+				io.Copy(zipFile, f)
+			}
+		}
+		return nil
+	}
+
+	err = filepath.Walk(pathToReportFolder, walkerFunc)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
