@@ -3,11 +3,15 @@ package report
 import (
 	"bytes"
 	"log"
+	"os"
+	"strconv"
 	"text/template"
 
 	"github.com/marti700/mirai/metrics"
 	model "github.com/marti700/mirai/models"
 	"github.com/marti700/veritas/linearalgebra"
+
+	goemail "gopkg.in/gomail.v2"
 )
 
 // Interface to be implemented by all report structs
@@ -80,4 +84,22 @@ Model predictions on the provided test data produced the following result for ea
 	}
 
 	return buff.String()
+}
+
+func SendReportByEmail(email, attachmentPath string) {
+
+	emailSender := os.Getenv("SENDER_EMAIL")
+	msg := goemail.NewMessage()
+	msg.SetHeader("From", emailSender)
+	msg.SetHeader("To", email)
+	msg.SetHeader("Subject", "Mirai reports")
+	msg.SetBody("text/html", "This is a test mail")
+	msg.Attach(attachmentPath)
+
+	port, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
+	n := goemail.NewDialer(os.Getenv("SMTP"), port, emailSender, os.Getenv("SENDER_EMAIL_PASSWORD"))
+
+	if err := n.DialAndSend(msg); err != nil {
+		log.Fatal(err)
+	}
 }

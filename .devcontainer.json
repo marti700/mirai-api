@@ -4,5 +4,11 @@
     "ghcr.io/devcontainers/features/go:1": {
       "version": "1.19"
     }
+  },
+  "containerEnv": {
+    "SMTP": "smtp.office365.com",
+    "SMTP_PORT": "587",
+    "SENDER_EMAIL": "xxxxx@mail.com",
+    "SENDER_EMAIL_PASSWORD": "xxxxxxxxxx"
   }
 }

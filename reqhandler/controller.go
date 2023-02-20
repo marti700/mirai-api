@@ -7,6 +7,7 @@ import (
 	"log"
 	"mirai-api/parser/data"
 	"mirai-api/parser/instruction"
+	"mirai-api/report"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -24,6 +25,9 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 	instructions := instruction.Parse(instructionsFile)
 	trainM(instructions, data.ReadDataFromCSV(dataFile), data.ReadDataFromCSV(targetFile))
+	reportFiles := prepareReports(instructions) + "reports.zip"
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func trainM(trainInstructions []instruction.Instructions, data, target linearalgebra.Matrix) {
