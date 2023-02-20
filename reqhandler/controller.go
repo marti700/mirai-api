@@ -25,7 +25,16 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 	instructions := instruction.Parse(instructionsFile)
 	trainM(instructions, data.ReadDataFromCSV(dataFile), data.ReadDataFromCSV(targetFile))
-	reportFiles := prepareReports(instructions) + "reports.zip"
+	reportsDirectory := prepareReports(instructions)
+	reportFiles := reportsDirectory + "reports.zip"
+
+	report.SendReportByEmail(r.URL.Query()["email"][0], reportFiles)
+
+	// deletes the reports after sending them by email
+	err := os.RemoveAll(reportsDirectory)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	w.WriteHeader(http.StatusOK)
 }
