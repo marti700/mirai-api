@@ -2,6 +2,7 @@ package reqhandler
 
 import (
 	"archive/zip"
+	"encoding/json"
 	"io"
 	"io/fs"
 	"log"
@@ -19,24 +20,49 @@ import (
 	"github.com/marti700/veritas/linearalgebra"
 )
 
+type response struct {
+	Status       string
+	ErrorMessage string
+}
+
 func Handle(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	resp := response{}
 	instructionsFile, dataFile, targetFile := RequFiles(r)
 	defer CloseFiles(instructionsFile, dataFile, targetFile)
 
 	instructions := instruction.Parse(instructionsFile)
 	trainM(instructions, data.ReadDataFromCSV(dataFile), data.ReadDataFromCSV(targetFile))
-	reportsDirectory := prepareReports(instructions)
+	reportsDirectory, err := prepareReports(instructions)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		resp.ErrorMessage = err.Error()
+		resp.Status = "Fail"
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
 	reportFiles := reportsDirectory + "reports.zip"
 
-	report.SendReportByEmail(r.URL.Query()["email"][0], reportFiles)
+	err = report.SendReportByEmail(r.URL.Query()["email"][0], reportFiles)
 
-	// deletes the reports after sending them by email
-	err := os.RemoveAll(reportsDirectory)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		resp.ErrorMessage = err.Error()
+		resp.Status = "Fail"
+		json.NewEncoder(w).Encode(resp)
+		return
 	}
 
+	// deletes the reports after sending them by email
+	err = os.RemoveAll(reportsDirectory)
+	if err != nil {
+		log.Print(err)
+	}
+
+	resp.Status = "OK"
+	resp.ErrorMessage = ""
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(resp)
 }
 
 func trainM(trainInstructions []instruction.Instructions, data, target linearalgebra.Matrix) {
@@ -57,11 +83,11 @@ func trainM(trainInstructions []instruction.Instructions, data, target linearalg
 	wg.Wait()
 }
 
-func prepareReports(instructions []instruction.Instructions) string {
+func prepareReports(instructions []instruction.Instructions) (string, error) {
 	dirName := strconv.FormatInt(time.Now().Unix(), 10)
 	err := os.Mkdir(dirName, os.ModePerm)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	for _, ins := range instructions {
@@ -72,7 +98,7 @@ func prepareReports(instructions []instruction.Instructions) string {
 				// creates the report file, if the file does not exists create it otherwise just append data
 				reportFile, err := os.OpenFile(reportsPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 				if err != nil {
-					log.Fatal(err)
+					return "", err
 				}
 
 				reportFile.WriteString(reportString)
@@ -81,16 +107,19 @@ func prepareReports(instructions []instruction.Instructions) string {
 			}
 		}
 	}
-	zipReports(dirName)
+	err = zipReports(dirName)
+	if err != nil {
+		return "", err
+	}
 
-	return dirName + "/"
+	return dirName + "/", nil
 }
 
-func zipReports(pathToReportFolder string) {
+func zipReports(pathToReportFolder string) error {
 	// create an empty zip file
 	archive, err := os.Create(pathToReportFolder + "/reports" + ".zip")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer archive.Close()
 
@@ -125,6 +154,8 @@ func zipReports(pathToReportFolder string) {
 
 	err = filepath.Walk(pathToReportFolder, walkerFunc)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 }

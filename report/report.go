@@ -86,7 +86,7 @@ Model predictions on the provided test data produced the following result for ea
 	return buff.String()
 }
 
-func SendReportByEmail(email, attachmentPath string) {
+func SendReportByEmail(email, attachmentPath string) error {
 
 	emailSender := os.Getenv("SENDER_EMAIL")
 	msg := goemail.NewMessage()
@@ -100,6 +100,8 @@ func SendReportByEmail(email, attachmentPath string) {
 	n := goemail.NewDialer(os.Getenv("SMTP"), port, emailSender, os.Getenv("SENDER_EMAIL_PASSWORD"))
 
 	if err := n.DialAndSend(msg); err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 }

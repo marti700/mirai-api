@@ -98,7 +98,7 @@ func TestReports(t *testing.T) {
 	instructions := instruction.Parse(instructionFile)
 
 	trainM(instructions, train, target)
-	pathToReports := prepareReports(instructions)
+	pathToReports, _ := prepareReports(instructions)
 
 	_, err := os.Open(pathToReports + "/reports.zip")
 	if errors.Is(err, fs.ErrNotExist) {
