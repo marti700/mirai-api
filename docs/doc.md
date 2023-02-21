@@ -1,140 +1,137 @@
-# Available endpoints
+# The Instruction File
+ The instruction file is a json file uploaded to the API. It contains the instructions that will be used to train the models. it has information such as the type of model to be trained (regression, decisiontree, etc) and the hyperparameters that will be used to train these models. The fnstruction file options are the following:
 
-for each point two request example are provided. The first one is the general form of the request and the second one is a concrete request that will produce an actual response if the app is executed locally.
+   **InstructionType:** the type of model we are going to train it must be one of:
+    - linearregression" 
+    - decisiontreeclassifier
+    - decisiontreeregressor"
 
-## /regression
+   **name:** is the id of the InstructionType. it helps identify to What instructionType a model belongs
+   **instructions:** is a Json array that contains a list of models with its training parameters, available parameters are given by the InstructionType
+     For linear regression
+         **name:** An id for the model, allows its unique identification after training \
+         **estimators:** the estimator used to estimate the linear regression coeficients, it have to be one of: \
+           *- GD* (for gradicent descent): when this option is speficied it's also required to spedify as a json object the the following properties \
+             *- Iterations:* the number of itererations performed by the gradiend descent \
+             *- LearningRate:* the learning rate of the GD \
+             *- MinStepSize:* how low should the "step size" be before exiting the GD loop \
+           *- OLS:* a boolean value indicating if the linear regression close form solution should be used, is set to true any other estimator will be ignored \
+         **regularization:** specifies tye type of regularization used, supported types are l1 and l2 regularization and are specified as fallows: \
+           *- type:* must by either l1 or l2 \
+           *- lambda:* spefifies the regularization rate 
+   
+   For decision tree classifier \
+       **name:** An id for the model, allows its unique identification after training \
+       **kind:** the type of desicion tree supported types are "classifier" or "regressor" \
+       **criterion:** the criteria on which the tree is trained on.\
+         For a tree of kind classifier the supported criterions are *"GINI"* and *"ENTROPY"*\
+         For a tree of kind regressor the supported criterions are "RSS" and "MSE"\
+       **minLeafSamples:** The minimun amount of leafs the tree should have
 
- Trains a linear regression model this endpoint returns an array of json models trained based on the provided instructions. To see the posible instruction combinations check the linReg.md file in the instructions_example folder
 
- **request example:**\
- curl -F 'json=@path/to/instruction/file.json' -F 'train=@path/to/train/data.csv' -F 'target=@path/to/target/data.csv' <http://localhost:9090/regression>
+### Example of a struction file:
 
- curl -F 'json=@./parser/instruction/linReg.json' -F 'train=@./reqhandler/benchmarkdata/x_train.csv' -F 'target=@./reqhandler/benchmarkdata/y_train.csv' <http://localhost:9090/regression>
-
- **response example:**
-
- ```json
+```json
 [
   {
-    "ModelName": "third model",
-    "Model": {
-      "Hyperparameters": {
-        "Row": 11,
-        "Col": 1,
-        "Data": [
-          0.46489296798558666,
-          25.930958811794405,
-          85.16096491147886,
-          67.37470375925801,
-          83.11931230630952,
-          60.03642725583279,
-          52.74548458336103,
-          65.52379401875451,
-          98.13034914861448,
-          42.04680826386831,
-          42.5684777408541
-        ]
+    "InstructionType": "linearregression",
+    "name": "An id for this instruction set",
+    "instructions": [
+      {
+        "name": "first model",
+        "estimators": {
+          "GD": {
+            "Iteations": 1000,
+            "LearningRate": 0.001,
+            "MinStepSize": 0.00003
+          },
+          "OLS": true
+        },
+        "regularization": {
+          "type": "l1",
+          "lambda": 0.01
+        }
       },
-      "Opts": {
-        "Estimator": {},
-        "Regularization": {
-          "Type": "",
-          "Lambda": 0
+      {
+        "name": "second model",
+        "estimators": {
+          "GD": {
+            "Iteations": 100,
+            "LearningRate": 0.01,
+            "MinStepSize": 0.002
+          },
+          "OLS": false
+        },
+        "regularization": {
+          "type": "l2",
+          "lambda": 0.01
+        }
+      },
+      {
+        "name": "third model",
+        "estimators": {
+          "OLS": true
         }
       }
-    }
+    ]
   },
   {
-    "ModelName": "first model",
-    "Model": {
-      "Hyperparameters": {
-        "Row": 11,
-        "Col": 1,
-        "Data": [
-          2.196122825441585e+110,
-          6.141375620505818e+109,
-          -6.382092921576376e+109,
-          -2.4761571161551897e+110,
-          -1.3269077812627159e+110,
-          1.5543050920674517e+110,
-          -4.08397765944916e+109,
-          -1.2949826003609184e+110,
-          -6.5537604711919086e+109,
-          6.797939928786705e+109,
-          -1.0692408654206326e+110
-        ]
+    "InstructionType": "decisiontreeclassifier",
+    "name": "second Instruction DTC",
+    "instructions": [
+      {
+        "name": "model1",
+        "kind": "classifier",
+        "criterion": "GINI"
       },
-      "Opts": {
-        "Estimator": {
-          "Iteations": 1000,
-          "LearningRate": 0.01,
-          "MinStepSize": 3e-05
-        },
-        "Regularization": {
-          "Type": "l1",
-          "Lambda": 20
-        }
+      {
+        "name": "model2",
+        "kind": "classifier",
+        "criterion": "ENTROPY"
       }
-    }
+    ]
   },
   {
-    "ModelName": "second model",
-    "Model": {
-      "Hyperparameters": {
-        "Row": 11,
-        "Col": 1,
-        "Data": [
-          2.5358403045823112e+110,
-          7.091382887897631e+109,
-          -7.369336664887424e+109,
-          -2.8591930027238152e+110,
-          -1.5321666863115007e+110,
-          1.79474000835524e+110,
-          -4.715726748918294e+109,
-          -1.4953030102347397e+110,
-          -7.56755940828814e+109,
-          7.849510901595641e+109,
-          -1.2346413645124386e+110
-        ]
+    "InstructionType": "decisiontreeregressor",
+    "name": "third Instruction",
+    "instructions": [
+      {
+        "name": "model3",
+        "kind": "regressor",
+        "criterion": "RSS",
+        "minLeafSamples": 20
       },
-      "Opts": {
-        "Estimator": {
-          "Iteations": 100,
-          "LearningRate": 0.01,
-          "MinStepSize": 0.002
-        },
-        "Regularization": {
-          "Type": "l2",
-          "Lambda": 0.01
-        }
+      {
+        "name": "model4",
+        "kind": "regressor",
+        "criterion": "MSE",
+        "minLeafSamples": 20
       }
-    }
+    ]
   }
 ]
 ```
 
-## /decisiontree/regression
+# Available endpoints
 
-Trains a dicision tree model for regression. Since tree model can be hard to read as json a .dot files are downloaded instead as a representation of the trained models.
+## /train
 
-**request example:**
+ Trains the models specified in the instruction file, the data used for training is passed in the train request parameter. the target variable
+ must be passed to the API using the target request parameter. Since training can take a while an email must be specified to recieve a report
+ containing matrics on how the model performed on the test data.
 
-curl -F 'json=@path/to/instruction/file.json' -F 'train=@path/to/train/data.csv' -F 'target=@path/to/target/data.csv' <http://localhost:9090/decisiontree/regression> > models.zip
+ **request example:**\
+ curl -F 'json=@path/to/instruction/file.json' -F 'train=@path/to/train/data.csv' -F 'target=@path/to/target/data.csv' <http://localhost:9090/train?email=mail@email.com>
 
-curl -F 'json=@./parser/instruction/decisionTreeRegressor.json' -F 'train=@./reqhandler/benchmarkdata/x_train.csv' -F 'target=@./reqhandler/benchmarkdata/y_train.csv' <http://localhost:9090/decisiontree/regression> > models.zip
+ **response example:**
 
-**response:**
-The response will be a zip file with a diagram of the model as a .dot file
+ *OK*\
+ ```json
+ {"Status": "OK", "ErrorMessage: ''"}
+ ```
 
-## /decisiontree/classification
+ *Fail*\
+ ```json
+ {"Status": "Fail", "ErrorMessage": 'Failure reason'}
+ ```
 
-Trains a dicision tree model for classification. Since tree model can be hard to read as json a zip of .dot files are downloaded instead as representation of the trained models.
-
-**request example:**
-
-curl -F 'json=@path/to/instruction/file.json' -F 'train=@path/to/train/data.csv' -F 'target=@path/to/target/data.csv' <http://localhost:9090/decisiontree/regression> > models.zip
-
-curl -F 'json=@./parser/instruction/decisionTreeClassifier.json' -F 'train=@./reqhandler/benchmarkdata/x_train.csv' -F 'target=@./reqhandler/benchmarkdata/y_train.csv' <http://localhost:9090/decisiontree/classification> > models.zip
-
-**response:**
-The response will be a zip file with a diagram of the model as a .dot file
