@@ -16,7 +16,7 @@ import (
 
 // Interface to be implemented by all report structs
 type Reporter interface {
-	CreateReport(data, target linearalgebra.Matrix, mod model.Model)
+	CreateReport(actual, predicted linearalgebra.Matrix, mod model.Model)
 	ToString() string
 }
 
@@ -43,11 +43,12 @@ func NewClassificationReport() ClassificationReport {
 }
 
 // Creates a regression report based on the provided data and returns it
-func (r *RegressionReport) CreateReport(data, target linearalgebra.Matrix, mod model.Model) {
-	r.R2 = metrics.RSquared(target, mod.Predict(data))
-	r.MSE = metrics.MeanSquareError(target, mod.Predict(data))
+func (r *RegressionReport) CreateReport(actual, predicted linearalgebra.Matrix, mod model.Model) {
+	r.R2 = metrics.RSquared(actual, predicted)
+	r.MSE = metrics.MeanSquareError(actual, predicted)
 }
 
+// ToString implementation of the Reporter interface
 func (r *RegressionReport) ToString() string {
 	templateString := `
 Model predictions on the provided test data produced an R squared of {{.R2}} and a Mean Square Error of {{.MSE}}
@@ -63,11 +64,12 @@ Model predictions on the provided test data produced an R squared of {{.R2}} and
 }
 
 // Creates a classification report based on the provided data and returns it
-func (c *ClassificationReport) CreateReport(data, target linearalgebra.Matrix, mod model.Model) {
-	cm := metrics.GetConfusionMatrix(target, mod.Predict((data)))
+func (c *ClassificationReport) CreateReport(actual, predicted linearalgebra.Matrix, mod model.Model) {
+	cm := metrics.GetConfusionMatrix(actual, predicted)
 	c.ConfusionMatrix = cm
 }
 
+// ToString implementation of the Reporter interface
 func (r *ClassificationReport) ToString() string {
 	templateString := `
 Model predictions on the provided test data produced the following result for each classification

@@ -80,7 +80,7 @@ func BenchmarkTrainM(b *testing.B) {
 	instructions := instruction.Parse(instructionFile)
 
 	for i := 0; i < b.N; i++ {
-		trainM(instructions, train, target)
+		trainM(instructions, train, target, train, target)
 	}
 	fmt.Println("trained")
 }
@@ -97,7 +97,7 @@ func TestReports(t *testing.T) {
 	target := data.ReadDataFromCSV(targetDataFile)
 	instructions := instruction.Parse(instructionFile)
 
-	trainM(instructions, train, target)
+	trainM(instructions, train, target, train, target)
 	pathToReports, _ := prepareReports(instructions)
 
 	_, err := os.Open(pathToReports + "/reports.zip")

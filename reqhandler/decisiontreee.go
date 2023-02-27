@@ -40,8 +40,8 @@ func newDTResponse(id string, mod model.Model) DTResponse {
 func HandleDecisionTreeRegressor(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(200)
 
-	instructionsFile, dataFile, targetFile := RequFiles(r)
-	defer CloseFiles(instructionsFile, dataFile, targetFile)
+	instructionsFile, dataFile, targetFile, testData, testTarget := RequFiles(r)
+	defer CloseFiles(instructionsFile, dataFile, targetFile, testData, testTarget)
 
 	trainData := data.ReadDataFromCSV(dataFile)
 	targetData := data.ReadDataFromCSV(targetFile)
@@ -71,8 +71,9 @@ func HandleDecisionTreeRegressor(w http.ResponseWriter, r *http.Request) {
 func HandleDecisionTreeClassifier(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(200)
 
-	instructionsFile, dataFile, targetFile := RequFiles(r)
-	defer CloseFiles(instructionsFile, dataFile, targetFile)
+	// instructionsFile, dataFile, targetFile := RequFiles(r)
+	instructionsFile, dataFile, targetFile, testData, testTarget := RequFiles(r)
+	defer CloseFiles(instructionsFile, dataFile, targetFile, testData, testTarget)
 
 	trainData := data.ReadDataFromCSV(dataFile)
 	targetData := data.ReadDataFromCSV(targetFile)

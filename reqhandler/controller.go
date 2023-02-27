@@ -28,11 +28,12 @@ type response struct {
 func Handle(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	resp := response{}
-	instructionsFile, dataFile, targetFile := RequFiles(r)
-	defer CloseFiles(instructionsFile, dataFile, targetFile)
+	instructionsFile, trainDataFile, trainTargetFile, testDataFile, testTargetFile := RequFiles(r)
+	defer CloseFiles(instructionsFile, trainDataFile, trainTargetFile, testDataFile, testTargetFile)
 
 	instructions := instruction.Parse(instructionsFile)
-	trainM(instructions, data.ReadDataFromCSV(dataFile), data.ReadDataFromCSV(targetFile))
+	trainM(instructions, data.ReadDataFromCSV(trainDataFile), data.ReadDataFromCSV(trainTargetFile),
+		data.ReadDataFromCSV(testDataFile), data.ReadDataFromCSV(testTargetFile))
 	reportsDirectory, err := prepareReports(instructions)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -65,7 +66,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func trainM(trainInstructions []instruction.Instructions, data, target linearalgebra.Matrix) {
+// trains models based on the provided instructions
+func trainM(trainInstructions []instruction.Instructions, data, target, testData, testTarget linearalgebra.Matrix) {
 	var wg sync.WaitGroup
 	for _, ins := range trainInstructions {
 		for _, models := range ins.Models {
@@ -73,7 +75,8 @@ func trainM(trainInstructions []instruction.Instructions, data, target linearalg
 				wg.Add(1)
 				go func(key string, mod instruction.MiraiModel) {
 					mod.Mod.Train(data, target)
-					mod.Report.CreateReport(data, target, mod.Mod)
+					predictions := mod.Mod.Predict(testData)
+					mod.Report.CreateReport(testTarget, predictions, mod.Mod)
 					mod.Report.ToString()
 					wg.Done()
 				}(key, value)
@@ -83,6 +86,7 @@ func trainM(trainInstructions []instruction.Instructions, data, target linearalg
 	wg.Wait()
 }
 
+// creates the reports that will be send by email
 func prepareReports(instructions []instruction.Instructions) (string, error) {
 	dirName := strconv.FormatInt(time.Now().Unix(), 10)
 	err := os.Mkdir(dirName, os.ModePerm)
@@ -115,6 +119,7 @@ func prepareReports(instructions []instruction.Instructions) (string, error) {
 	return dirName + "/", nil
 }
 
+// puts the specified directory into a zip file
 func zipReports(pathToReportFolder string) error {
 	// create an empty zip file
 	archive, err := os.Create(pathToReportFolder + "/reports" + ".zip")
@@ -131,7 +136,7 @@ func zipReports(pathToReportFolder string) error {
 		if info.IsDir() {
 			return nil
 		}
-		// avoids the zip file processing and avoids the root folder name to be taken into consideration
+		// avoids the zip file from being processing and prevents the root folder name to be taken into consideration
 		if !strings.HasSuffix(path, "zip") {
 			f, err := os.Open(path)
 			if err != nil {

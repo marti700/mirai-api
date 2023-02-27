@@ -36,11 +36,14 @@ func newLrResponse(id string, model linearmodels.LinearRegression) LrResponse {
 func HandleRegression(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(200)
 
-	instructionsFile, dataFile, targetFile := RequFiles(r)
-	defer CloseFiles(instructionsFile, dataFile, targetFile)
+	instructionsFile, trainDataFile, trainTargetFile, testDataFile, testTargetFile := RequFiles(r)
+	defer CloseFiles(instructionsFile, trainDataFile, trainTargetFile, testDataFile, testTargetFile)
 
-	trainData := data.ReadDataFromCSV(dataFile)
-	targetData := data.ReadDataFromCSV(targetFile)
+	// instructionsFile, dataFile, targetFile := RequFiles(r)
+	// defer CloseFiles(instructionsFile, dataFile, targetFile)
+
+	trainData := data.ReadDataFromCSV(trainDataFile)
+	targetData := data.ReadDataFromCSV(trainTargetFile)
 	trainingInstructions := instruction.NewLinearRegInstructions()
 	trainingInstructions.Parse(instructionsFile)
 

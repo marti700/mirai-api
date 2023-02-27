@@ -121,7 +121,7 @@
  containing matrics on how the model performed on the test data.
 
  **request example:**\
- curl -F 'json=@path/to/instruction/file.json' -F 'train=@path/to/train/data.csv' -F 'target=@path/to/target/data.csv' <http://localhost:9090/train?email=mail@email.com>
+ curl -F 'json=@path/to/instruction/file.json' -F 'trainData=@path/to/train/data.csv' -F 'trainTarget=@path/to/target/data.csv' -F 'testData=@path/to/test/data.csv' -F 'testTarget=@path/to/test/target/data.csv'  <http://localhost:9090/train?email=mail@email.com>
 
  **response example:**
 
