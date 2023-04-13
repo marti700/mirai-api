@@ -1,0 +1,62 @@
+[
+  {
+    "InstructionType": "linearregression",
+    "name": "first Instruction",
+    "instructions": [
+      {
+        "name": "first model",
+        "estimators": {
+          "GD": {
+            "Iteations": 1000,
+            "LearningRate": 0.001,
+            "MinStepSize": 0.00003
+          },
+          "OLS": true
+        },
+        "regularization": {
+          "type": "l1",
+          "lambda": 0.01
+        }
+      },
+      {
+        "name": "second model",
+        "estimators": {
+          "GD": {
+            "Iteations": 100,
+            "LearningRate": 0.01,
+            "MinStepSize": 0.002
+          },
+          "OLS": false
+        },
+        "regularization": {
+          "type": "l2",
+          "lambda": 0.01
+        }
+      },
+      {
+        "name": "third model",
+        "estimators": {
+          "OLS": true
+        }
+      }
+    ]
+  },
+  {
+    "InstructionType": "decisiontreeregressor",
+    "name": "third Instruction",
+    "instructions": [
+      {
+        "name": "model3",
+        "kind": "regressor",
+        "criterion": "RSS",
+        "minLeafSamples": 20
+      },
+      {
+        "name": "model4",
+        "kind": "regressor",
+        "criterion": "MSE",
+        "minLeafSamples": 20
+      }
+    ]
+  }
+]

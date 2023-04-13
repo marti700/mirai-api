@@ -92,5 +92,27 @@ for example the following instruction file asks the api to train three different
 
 The data features (variables used to train a model) and the target variable (the variable we want to predict) must be provided in different files.
 
+### Test it with docker
+
+*run the container:*\
+```
+docker run -e "SENDER_EMAIL=teodoro641@hotmail.com"\
+  -e "SMTP_PORT=587" -e "SMTP=smtp.office365.com"\
+  -e "SENDER_EMAIL_PASSWORD=BtplSgMb50qK"\
+  -p 9090:9090 mirai-api:1.0.1
+```
+
+*make a request:*\
+```
+curl -F 'json=@./exampledata/all.json'\
+ -F 'trainData=@./exampledata/LinearReg/x_train.csv'\
+ -F 'trainTarget=@./exampledata/LinearReg/y_train.csv'\
+ -F 'testData=@./exampledata/LinearReg/x_test.csv'\
+ -F 'testTarget=@./exampledata/LinearReg/y_test.csv'\
+ http://localhost:9090/train?email=teodoro641@gmail.com
+
+```
+
+
 For info on how to use the API please check docs/doc.md
 
