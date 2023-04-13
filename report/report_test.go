@@ -1,6 +1,7 @@
 package report
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/marti700/mirai/metrics"
@@ -21,16 +22,18 @@ func TestClassificationReportToString(t *testing.T) {
 		TN: 10,
 	}
 
-	cmSlice := make([]metrics.ConfusionMatrix, 2)
-	cmSlice[0] = cm
-	cmSlice[1] = cm2
+	tcm := make(map[float64]metrics.ConfusionMatrix)
+	tcm[1.0] = cm
+	tcm[2.0] = cm2
 
 	cr := ClassificationReport{
-		ConfusionMatrix: cmSlice,
+		ConfusionMatrices: tcm,
 	}
 
 	expectedResult :=
-		"\nModel predictions on the provided test data produced the following result for each classification\n\n\n  - for class x the accuarcy is 0.5757575757575758, the precision is 0.625 and the Recall value is 0.5555555555555556\n\n  - for class x the accuarcy is 0.5675675675675675, the precision is 0.6111111111111112 and the Recall value is 0.55\n\n"
+		"\nModel predictions on the provided test data produced the following result for each classification\n \n  - For the class 1: \n      - the accuarcy is 0.5757575757575758, the precision is 0.625 and the Recall value is 0.5555555555555556\n \n  - For the class 2: \n      - the accuarcy is 0.5675675675675675, the precision is 0.6111111111111112 and the Recall value is 0.55\n\n"
+	y := cr.ToString()
+	fmt.Println(y)
 
 	if cr.ToString() != expectedResult {
 		t.Error("A string is expected")

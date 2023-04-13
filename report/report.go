@@ -29,7 +29,7 @@ type RegressionReport struct {
 
 // Represents a Classification report, its fields are to be populated by various classification metrics
 type ClassificationReport struct {
-	ConfusionMatrix []metrics.ConfusionMatrix
+	ConfusionMatrices map[float64]metrics.ConfusionMatrix
 }
 
 // Returns an empty instance of a RegressionReport
@@ -65,22 +65,30 @@ Model predictions on the provided test data produced an R squared of {{.R2}} and
 
 // Creates a classification report based on the provided data and returns it
 func (c *ClassificationReport) CreateReport(actual, predicted linearalgebra.Matrix, mod model.Model) {
-	cm := metrics.GetConfusionMatrix(actual, predicted)
-	c.ConfusionMatrix = cm
+	cm := metrics.BuildConfusionMatrices(actual, predicted)
+	c.ConfusionMatrices = cm
 }
 
 // ToString implementation of the Reporter interface
 func (r *ClassificationReport) ToString() string {
+	// golang templates can iterate a map just if it's keys are strings. classificationReport#ConfusionMatrix is
+	// a map wich key type is a float64 so, a new map with string key type is needed to comply with the golang text
+	// template constraints
+	data := make(map[string]metrics.ConfusionMatrix)
+	for k, v := range r.ConfusionMatrices {
+		data[strconv.FormatFloat(k, 'f', -1, 64)] = v
+	}
+
 	templateString := `
 Model predictions on the provided test data produced the following result for each classification
-{{ $cm := .ConfusionMatrix}}
-{{range $cm}}
-  - for class x the accuarcy is {{.GetAccuarcy}}, the precision is {{.GetPrecision}} and the Recall value is {{.GetRecall}}
+{{range $key, $value := .}}
+  - For the class {{ $key }}:
+      - the accuarcy is {{$value.GetAccuarcy}}, the precision is {{$value.GetPrecision}} and the Recall value is {{$value.GetRecall}}
 {{end}}
 `
 	template := template.Must(template.New("classification").Parse(templateString))
 	buff := new(bytes.Buffer)
-	err := template.Execute(buff, r)
+	err := template.Execute(buff, data)
 	if err != nil {
 		log.Fatal(err)
 	}
